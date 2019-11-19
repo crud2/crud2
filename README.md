@@ -3,7 +3,7 @@ a not only orm framework based on mybatis
 
 # basic use
 > it is recommended to use spring boot starter to introduce
-```
+``` xml
         <dependency>
             <groupId>org.crud2.spring.boot</groupId>
             <artifactId>crud2-spring-boot-starter</artifactId>
@@ -12,6 +12,11 @@ a not only orm framework based on mybatis
 ```
 ``` java
 CRUD.query()
+	.from("tableName")
+	.select("fields")
+	.pageSizeIndex(20,1)
+	.where(field,oper,value)
+        .queryMapPager()
 CRUD.insert()
 CRUD.update()
 CRUD.delete()

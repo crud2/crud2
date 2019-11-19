@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.crud2.mybatis.dao.QueryDao">
+
+    <select id="query" resultType="map">
+        <if test="sql == null and queryTable != null and queryTable != ''">
+            select
+            <choose>
+                <when test="queryFields != null and queryFields.length > 0">
+                    <foreach item="item" collection="queryFields" open="" separator="," close="">
+                        ${item}
+                    </foreach>
+                </when>
+                <otherwise>
+                    *
+                </otherwise>
+            </choose>
+            from
+            ${queryTable}
+        </if>
+        <if test="sql != null and sql != ''">
+            ${sql}
+        </if>
+        <if test="conditions != null and conditions.size() > 0">
+            <where>
+                <foreach item="item" collection="conditions" open="" separator=" and " close="">
+                    ${item.field}
+                    <choose>
+                        <when test="item.oper == 'in'">
+                            ${item.oper}
+                            (
+                            <foreach item="valueItem" collection="item.value" open="" separator="," close="">
+                                #{valueItem}
+                            </foreach>
+                            )
+                        </when>
+                        <when test="item.oper == 'not in'">
+                            ${item.oper}
+                            (
+                            <foreach item="valueItem" collection="item.value" open="" separator="," close="">
+                                #{valueItem}
+                            </foreach>
+                            )
+                        </when>
+                        <when test="item.oper == 'is null'">
+                              is null
+                        </when>
+                        <when test="item.oper == 'is not null'">
+                              is not null
+                        </when>
+                        <otherwise>
+                            ${item.oper} #{item.value}
+                        </otherwise>
+                    </choose>
+                </foreach>
+            </where>
+        </if>
+    </select>
+</mapper>

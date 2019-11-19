@@ -35,7 +35,7 @@ public interface Query {
 
     <T> PagerResult<T> queryPager();
 
-    PagerResult<Map<String, Object>> queryMapPager();
+    PagerResult<Map<String, Object>> queryMapListPager();
 
     PagerArrayListResult queryArraylistPager();
 }

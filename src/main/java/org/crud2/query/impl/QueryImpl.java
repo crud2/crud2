@@ -136,7 +136,7 @@ public class QueryImpl implements Query {
     }
 
     @Override
-    public PagerResult<Map<String, Object>> queryMapPager() {
+    public PagerResult<Map<String, Object>> queryListMapPager() {
         PagerResult<Map<String, Object>> result = innerQueryMapPager();
         List<Map<String, Object>> data = result.getData();
         if (data.size() > 0L) {

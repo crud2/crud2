@@ -5,7 +5,9 @@ import org.crud2.edit.EditParameter;
 
 @Mapper
 public interface EditDao {
-    int insertWithAutoId(EditParameter parameter);
+    long insertIdentity(EditParameter parameter);
+
+    void insert(EditParameter parameter);
 
     void update(EditParameter parameter);
 

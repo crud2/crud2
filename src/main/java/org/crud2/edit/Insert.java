@@ -7,6 +7,8 @@ public interface Insert {
 
     Insert values(Map<String, Object> values);
 
+    Insert value(String field, Object value);
+
     Insert identity();
 
     Object flush();

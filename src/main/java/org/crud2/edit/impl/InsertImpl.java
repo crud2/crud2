@@ -34,6 +34,12 @@ public class InsertImpl implements Insert {
     }
 
     @Override
+    public Insert value(String field, Object value) {
+        parameter.getValues().put(field, value);
+        return this;
+    }
+
+    @Override
     public Insert identity() {
         parameter.setIdentity(true);
         return this;
@@ -41,6 +47,11 @@ public class InsertImpl implements Insert {
 
     @Override
     public Object flush() {
-        return editDao.insertWithAutoId(parameter);
+        if (parameter.isIdentity()) {
+            return editDao.insertIdentity(parameter);
+        } else {
+            parameter.setIdentity(false);
+            return null;
+        }
     }
 }

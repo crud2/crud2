@@ -19,5 +19,8 @@ public class Column {
     private int key;
     private String sortType;
     private int required;
+    /***
+     * 2:indentity
+     */
     private int defaultValueType;
 }

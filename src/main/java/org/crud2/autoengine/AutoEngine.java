@@ -1,6 +1,7 @@
 package org.crud2.autoengine;
 
 import org.crud2.CRUD2BeanFactory;
+import org.crud2.autoengine.config.Column;
 import org.crud2.autoengine.config.Module;
 import org.crud2.autoengine.config.ModuleDefineFactory;
 import org.crud2.autoengine.exception.NullModuleException;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -38,12 +40,8 @@ public class AutoEngine {
     }
 
     public static Query query(String moduleId, Map<String, Object> params) {
-        Module module = moduleDefineFactory.get(moduleId);
-        if (module == null) {
-            NullModuleException exception = new NullModuleException(moduleId);
-            logger.error(exception.getMessage(), exception);
-            return null;
-        }
+        Module module = checkModule(moduleId);
+        if (module == null) return null;
         Query query = crud2BeanFactory.getQuery();
         if (!StringUtil.isNullOrEmpty(module.getQuerySql())) {
             String sql = module.getQuerySql();
@@ -72,8 +70,28 @@ public class AutoEngine {
         return moduleDefineFactory.getModuleSqlParameterNames(moduleId);
     }
 
-    public Insert insert(String moduleId) {
-        return null;
+    public static Object insert(String moduleId, Map<String, Object> values) {
+        Module module = checkModule(moduleId);
+        if (module == null) return null;
+        Insert insert = crud2BeanFactory.getInsert()
+                .into(module.getEditTable());
+        Column keyColumn = module.getKey();
+        if (keyColumn == null) {
+            logger.debug(String.format("module:%s has no primary key defined", moduleId));
+        }
+        Column[] columns = module.getColumns();
+        Map<String, Object> insertValues = new HashMap<>();
+        for (Column c : columns) {
+            if (values.containsKey(c.getName())) {
+                if (c != keyColumn || keyColumn.getDefaultValueType() != 2) {
+                    insert.value(c.getName(), convertEditValue(c, values.get(c.getName())));
+                }
+            }
+        }
+        if (keyColumn.getDefaultValueType() == 2) {
+            insert.identity();
+        }
+        return insert.flush();
     }
 
     public Update update(String moduleId) {
@@ -82,5 +100,19 @@ public class AutoEngine {
 
     public Delete delete(String moduleId) {
         return null;
+    }
+
+    private static Module checkModule(String moduleId) {
+        Module module = moduleDefineFactory.get(moduleId);
+        if (module == null) {
+            NullModuleException exception = new NullModuleException(moduleId);
+            logger.error(exception.getMessage(), exception);
+            return null;
+        }
+        return module;
+    }
+
+    private static Object convertEditValue(Column column, Object value) {
+        return value;
     }
 }

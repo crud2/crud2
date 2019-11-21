@@ -10,6 +10,7 @@ import org.crud2.edit.Delete;
 import org.crud2.edit.Insert;
 import org.crud2.edit.Update;
 import org.crud2.query.Query;
+import org.crud2.util.Convert;
 import org.crud2.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class AutoEngine {
     }
 
     public static Query query(String moduleId, Map<String, Object> params) {
-        Module module = checkModule(moduleId);
+        Module module = getAndCheckModule(moduleId);
         if (module == null) return null;
         Query query = crud2BeanFactory.getQuery();
         if (!StringUtil.isNullOrEmpty(module.getQuerySql())) {
@@ -71,7 +72,7 @@ public class AutoEngine {
     }
 
     public static Object insert(String moduleId, Map<String, Object> values) {
-        Module module = checkModule(moduleId);
+        Module module = getAndCheckModule(moduleId);
         if (module == null) return null;
         Insert insert = crud2BeanFactory.getInsert()
                 .into(module.getEditTable());
@@ -88,21 +89,45 @@ public class AutoEngine {
                 }
             }
         }
-        if (keyColumn.getDefaultValueType() == 2) {
+        if (keyColumn != null && keyColumn.getDefaultValueType() == 2) {
             insert.identity();
         }
         return insert.flush();
     }
 
-    public Update update(String moduleId) {
+    public static void update(String moduleId, Map<String, Object> values) {
+        Module module = getAndCheckModule(moduleId);
+        if (module == null) return;
+        Update update = crud2BeanFactory.getUpdate()
+                .table(module.getEditTable());
+        Column keyColumn = module.getKey();
+        if (keyColumn == null) {
+            logger.error(String.format("module:%s has no primary key defined", moduleId));
+            return;
+        }
+        Object keyValObj = values.getOrDefault(keyColumn.getName(), null);
+        if (keyValObj == null) {
+            logger.error(String.format("key %s must have value", keyColumn.getName()));
+            return;
+        }
+        update.byKey(keyColumn.getName(), convertEditValue(keyColumn, keyValObj));
+        Column[] columns = module.getColumns();
+        Map<String, Object> updateValues = new HashMap<>();
+        for (Column c : columns) {
+            if (values.containsKey(c.getName())) {
+                if (c != keyColumn || keyColumn.getDefaultValueType() != 2) {
+                    update.set(c.getName(), convertEditValue(c, values.get(c.getName())));
+                }
+            }
+        }
+        update.flush();
+    }
+
+    public static Delete delete(String moduleId) {
         return null;
     }
 
-    public Delete delete(String moduleId) {
-        return null;
-    }
-
-    private static Module checkModule(String moduleId) {
+    private static Module getAndCheckModule(String moduleId) {
         Module module = moduleDefineFactory.get(moduleId);
         if (module == null) {
             NullModuleException exception = new NullModuleException(moduleId);
@@ -113,6 +138,16 @@ public class AutoEngine {
     }
 
     private static Object convertEditValue(Column column, Object value) {
+        switch (column.getSortType()) {
+            case "float":
+                return Convert.toDecimal(value);
+            case "date":
+                return Convert.toDate(value);
+            case "int":
+                return Convert.toInt(value);
+            case "text":
+                return value.toString();
+        }
         return value;
     }
 }

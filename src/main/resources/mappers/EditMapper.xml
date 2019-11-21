@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.crud2.mybatis.dao.EditDao">
+<mapper namespace="org.crud2.db.EditDAO">
     <sql id="innerInsert">
         INSERT INTO ${table}
         (
@@ -24,13 +24,13 @@
         </foreach>
         )
     </sql>
-    <select id="insertIdentity" resultType="int" parameterType="org.crud2.edit.EditParameter">
-        <include refid="innserInsert"/>;
+    <select id="insertIdentity" resultType="long" parameterType="org.crud2.edit.EditParameter">
+        <include refid="innerInsert"/>;
         SELECT LAST_INSERT_ID();
     </select>
 
     <insert id="insert" parameterType="org.crud2.edit.EditParameter">
-        <include refid="innserInsert"/>;
+        <include refid="innerInsert"/>;
     </insert>
 
     <update id="update" parameterType="org.crud2.edit.EditParameter">

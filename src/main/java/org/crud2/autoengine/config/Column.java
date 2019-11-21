@@ -23,4 +23,7 @@ public class Column {
      * 2:indentity
      */
     private int defaultValueType;
+    private int listReplace;
+    private String editSql;
+    private String value;
 }

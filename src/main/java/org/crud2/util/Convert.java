@@ -24,7 +24,7 @@ public class Convert {
     public static Integer toInt(Object o) {
         if (o instanceof Integer) return (Integer) o;
         else if (o instanceof String) {
-            return toInt((String) o)
+            return toInt((String) o);
         }
         logger.error(String.format("can not convert %s to Integer", o.getClass()));
         return null;

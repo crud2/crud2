@@ -6,7 +6,7 @@ import lombok.Data;
 public class Module {
     private String id;
     private String editTable;
-    private String querySql;
+    private String sql;
     private Column[] columns;
 
     public Column getKey() {

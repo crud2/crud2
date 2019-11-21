@@ -12,7 +12,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 @Configuration("curd2initializer")
-@MapperScan("org.crud2.mybatis.dao")
+@MapperScan("org.crud2.db")
 public class Initializer {
     private static Logger logger = LoggerFactory.getLogger(Initializer.class);
 

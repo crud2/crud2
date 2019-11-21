@@ -2,7 +2,7 @@ package org.crud2.edit.impl;
 
 import org.crud2.edit.EditParameter;
 import org.crud2.edit.Update;
-import org.crud2.mybatis.dao.EditDao;
+import org.crud2.db.EditDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import java.util.Map;
 public class UpdateImpl implements Update {
     private EditParameter parameter;
     @Autowired
-    private EditDao editDao;
+    private EditDAO editDao;
 
     public UpdateImpl() {
         parameter = new EditParameter();

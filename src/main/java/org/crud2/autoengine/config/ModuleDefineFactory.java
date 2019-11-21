@@ -43,7 +43,7 @@ public class ModuleDefineFactory {
             Module module = get(moduleId);
             if (module == null) sqlParameterNames.put(moduleId, null);
             else {
-                String sql = module.getQuerySql();
+                String sql = module.getSql();
                 String[] names = sqlTextParameterResolver.getNames(sql);
                 sqlParameterNames.put(moduleId, names);
             }

@@ -2,8 +2,7 @@ package org.crud2.query.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.crud2.mybatis.dao.QueryDao;
-import org.crud2.query.Query;
+import org.crud2.db.QueryDAO;
 import org.crud2.query.QueryParameter;
 import org.crud2.query.Where;
 import org.crud2.query.condition.Condition;
@@ -22,12 +21,12 @@ import java.util.Map;
 
 @Component
 @Scope("prototype")
-public class QueryImpl implements Query {
+public class QueryImpl implements org.crud2.query.Query {
 
     private QueryParameter parameter;
 
     @Autowired
-    private QueryDao queryDao;
+    private QueryDAO queryDao;
     @Autowired
     private ApplicationContext context;
     @Autowired
@@ -45,31 +44,31 @@ public class QueryImpl implements Query {
     }
 
     @Override
-    public Query from(String tableName) {
+    public org.crud2.query.Query from(String tableName) {
         parameter.setQueryTable(tableName);
         return this;
     }
 
     @Override
-    public Query select(String fields) {
+    public org.crud2.query.Query select(String fields) {
         parameter.setQueryFields(fields.split(","));
         return this;
     }
 
     @Override
-    public Query select(String... fields) {
+    public org.crud2.query.Query select(String... fields) {
         parameter.setQueryFields(fields);
         return this;
     }
 
     @Override
-    public Query sql(String sqlText) {
+    public org.crud2.query.Query sql(String sqlText) {
         parameter.setSql(sqlText);
         return this;
     }
 
     @Override
-    public Query pageSizeIndex(int size, int index) {
+    public org.crud2.query.Query pageSizeIndex(int size, int index) {
         parameter.setPageType(QueryParameter.PAGE_TYPE_SIZE_INDEX);
         parameter.setPageSize(size);
         parameter.setPageIndex(index);
@@ -77,7 +76,7 @@ public class QueryImpl implements Query {
     }
 
     @Override
-    public Query pageOffsetLimit(int offset, int limit) {
+    public org.crud2.query.Query pageOffsetLimit(int offset, int limit) {
         parameter.setPageType(QueryParameter.PAGE_TYPE_OFFSET_LIMIT);
         parameter.setOffset(offset);
         parameter.setLimit(limit);
@@ -85,7 +84,7 @@ public class QueryImpl implements Query {
     }
 
     @Override
-    public Query where(String field, String operatorName, Object value) {
+    public org.crud2.query.Query where(String field, String operatorName, Object value) {
         Condition condition = new Condition();
         this.parameter.getConditions().add(condition);
         condition.setField(field);
@@ -165,7 +164,7 @@ public class QueryImpl implements Query {
     }
 
     @Override
-    public PagerArrayListResult queryArraylistPager() {
+    public PagerArrayListResult queryListArrayPager() {
         PagerArrayListResult result = new PagerArrayListResult();
         ArrayListData data = new ArrayListData();
         PagerResult<Map<String, Object>> mapPagerResult = innerQueryMapPager();

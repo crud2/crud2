@@ -44,8 +44,8 @@ public class AutoEngine {
         Module module = getAndCheckModule(moduleId);
         if (module == null) return null;
         Query query = crud2BeanFactory.getQuery();
-        if (!StringUtil.isNullOrEmpty(module.getQuerySql())) {
-            String sql = module.getQuerySql();
+        if (!StringUtil.isNullOrEmpty(module.getSql())) {
+            String sql = module.getSql();
             if (params != null) sql = sqlTextParameterResolver.resolve(sql, params);
             query.sql(sql);
         } else {
@@ -123,8 +123,41 @@ public class AutoEngine {
         update.flush();
     }
 
-    public static Delete delete(String moduleId) {
-        return null;
+    public static void delete(String moduleId, Object keyValue) {
+        if (keyValue == null) {
+            logger.error("key field must have value");
+            return;
+        }
+        Module module = getAndCheckModule(moduleId);
+        if (module == null) return;
+        Delete delete = crud2BeanFactory.getDelete()
+                .from(module.getEditTable());
+        Column keyColumn = module.getKey();
+        if (keyColumn == null) {
+            logger.error(String.format("module:%s has no primary key defined", moduleId));
+            return;
+        }
+        delete.byKey(keyColumn.getName(), convertEditValue(keyColumn, keyValue));
+        delete.flush();
+    }
+
+    public static void delete(String moduleId, Map<String, Object> values) {
+        Module module = getAndCheckModule(moduleId);
+        if (module == null) return;
+        Delete delete = crud2BeanFactory.getDelete()
+                .from(module.getEditTable());
+        Column keyColumn = module.getKey();
+        if (keyColumn == null) {
+            logger.error(String.format("module:%s has no primary key defined", moduleId));
+            return;
+        }
+        Object keyValObj = values.getOrDefault(keyColumn.getName(), null);
+        if (keyValObj == null) {
+            logger.error(String.format("key %s must have value", keyColumn.getName()));
+            return;
+        }
+        delete.byKey(keyColumn.getName(), convertEditValue(keyColumn, keyValObj));
+        delete.flush();
     }
 
     private static Module getAndCheckModule(String moduleId) {

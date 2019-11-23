@@ -7,10 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-@Component
-@Scope("prototype")
-public class AbstractDeleteImpl implements Delete {
-    private EditParameter parameter;
+public abstract class AbstractDeleteImpl implements Delete {
+    protected EditParameter parameter;
     @Autowired
     private EditDAO editDao;
 
@@ -44,7 +42,5 @@ public class AbstractDeleteImpl implements Delete {
     }
 
     @Override
-    public void flush() {
-        editDao.delete(parameter);
-    }
+    public abstract void flush();
 }

@@ -1,7 +1,11 @@
 package org.crud2.edit.impl.inner;
 
-import org.crud2.edit.EditParameter;
 import org.crud2.edit.impl.AbstractInsertImpl;
+import org.crud2.jdbc.PreparedSQLCommand;
+import org.crud2.jdbc.PreparedSQLCommandBuilder;
+import org.crud2.jdbc.SQLContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
@@ -18,43 +22,24 @@ import java.util.Map;
 @Component
 @Scope("prototype")
 public class InnerInsertImpl extends AbstractInsertImpl {
+    private static final Logger logger = LoggerFactory.getLogger(InnerInsertImpl.class);
 
     @Autowired
-    JdbcTemplate jdbcTemplate;
+    SQLContext context;
 
     @Override
     public Object flush() {
         PreparedSQLCommand sqlCommand = buildInsertCommand();
         if (parameter.isIdentity()) {
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-            int rows = jdbcTemplate.update(con -> {
-                PreparedStatement ps = con.prepareStatement(sqlCommand.getCommandText(), Statement.RETURN_GENERATED_KEYS);
-                newArgPreparedStatementSetter(sqlCommand.getParamNames()).setValues(ps);
-                return ps;
-            }, keyHolder);
-            if (rows > 0) {
-                Map<String, Object> keys = keyHolder.getKeys();
-                return keys.get(parameter.getKey());
-            } else {
-                //todo:empty row effect
-                return null;
-            }
+            Map<String, Object> keys = context.executeGeneratedKey(sqlCommand);
+            return keys.get(parameter.getKey());
         } else {
-            jdbcTemplate.update(con -> {
-                PreparedStatement ps = con.prepareStatement(sqlCommand.getCommandText(), Statement.RETURN_GENERATED_KEYS);
-                newArgPreparedStatementSetter(sqlCommand.getParamNames()).setValues(ps);
-                return ps;
-            });
+            context.execute(sqlCommand);
         }
         return null;
     }
 
-    private PreparedStatementSetter newArgPreparedStatementSetter(String[] argNames) {
-        Object[] args = new Object[argNames.length];
-        Map<String, Object> values = parameter.getValues();
-        for (int i = 0; i < argNames.length; i++) {
-            args[i] = values.get(argNames[i]);
-        }
+    private PreparedStatementSetter newArgPreparedStatementSetter(Object[] args) {
         return new ArgumentPreparedStatementSetter(args);
     }
 
@@ -66,7 +51,7 @@ public class InnerInsertImpl extends AbstractInsertImpl {
         builder.append(keys);
         builder.append(") VALUES (");
         builder.appendPlaceolder(keys.length);
-        builder.appendParam(keys);
+        builder.appendParam(keys, parameter.getValues());
         builder.append(")");
         return builder.build();
     }

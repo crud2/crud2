@@ -1,18 +1,20 @@
-package org.crud2.edit.impl.inner;
+package org.crud2.jdbc;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class PreparedSQLCommandBuilder {
     private StringBuilder builder;
     private List<String> paramNames;
+    private List<Object> params;
 
     private static final String PLACE_HOLDER = "?";
 
-    public PreparedSQLCommandBuilder() {
+    private PreparedSQLCommandBuilder() {
         builder = new StringBuilder();
         paramNames = new ArrayList<>();
+        params = new ArrayList<>();
     }
 
     public static PreparedSQLCommandBuilder newInstance() {
@@ -50,13 +52,22 @@ public class PreparedSQLCommandBuilder {
         }
     }
 
-    public void appendParam(String param) {
+    public void appendParam(String param, Object value) {
         paramNames.add(param);
+        params.add(value);
     }
 
-    public void appendParam(String[] params) {
-        for (String param : params) {
-            paramNames.add(param);
+    public void appendParam(Map<String, Object> params) {
+        for (String k : params.keySet()) {
+            paramNames.add(k);
+            this.params.add(params.get(k));
+        }
+    }
+
+    public void appendParam(String[] keys, Map<String, Object> params) {
+        for (String k : keys) {
+            paramNames.add(k);
+            this.params.add(params.get(k));
         }
     }
 
@@ -64,7 +75,10 @@ public class PreparedSQLCommandBuilder {
         PreparedSQLCommand command = new PreparedSQLCommand();
         String[] paramNameArray = new String[paramNames.size()];
         paramNames.toArray(paramNameArray);
+        Object[] paramArray = new Object[params.size()];
+        params.toArray(paramArray);
         command.setParamNames(paramNameArray);
+        command.setParams(paramArray);
         command.setCommandText(builder.toString());
         return command;
     }

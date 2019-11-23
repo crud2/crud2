@@ -1,4 +1,4 @@
-package org.crud2.edit.impl.inner;
+package org.crud2.jdbc;
 
 /***
  * get prepared sql command from cache by key

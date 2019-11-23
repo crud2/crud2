@@ -1,9 +1,6 @@
 package org.crud2.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MapUtil {
     public static Map<String, Object> toLowerCaseKeyMap(Map<String, Object> origin) {

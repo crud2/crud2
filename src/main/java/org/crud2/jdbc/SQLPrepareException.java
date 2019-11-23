@@ -1,4 +1,4 @@
-package org.crud2.edit.impl.inner;
+package org.crud2.jdbc;
 
 public class SQLPrepareException extends Exception {
     public SQLPrepareException() {

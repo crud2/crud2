@@ -11,13 +11,13 @@ import java.util.Map;
 
 @Component
 @Scope("prototype")
-public class InsertImpl implements Insert {
-    private EditParameter parameter;
+public abstract class InsertAbstractImpl implements Insert {
+    protected EditParameter parameter;
 
     @Autowired
     private EditDAO editDao;
 
-    public InsertImpl() {
+    public InsertAbstractImpl() {
         parameter = new EditParameter();
     }
 
@@ -50,14 +50,7 @@ public class InsertImpl implements Insert {
     }
 
     @Override
-    public Object flush() {
-        if (parameter.isIdentity()) {
-            return editDao.insertIdentity(parameter);
-        } else {
-            parameter.setIdentity(false);
-            return null;
-        }
-    }
+    public abstract Object flush();
 
     private void fixKeyInsertValue() {
         if (parameter.getValues().containsKey(parameter.getKey())) {

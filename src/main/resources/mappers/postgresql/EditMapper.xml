@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.crud2.db.EditDAO">
+    <sql id="innerInsert">
+        INSERT INTO ${table}
+        (
+        <foreach item="value" index="key" collection="values" open=""
+                 separator="," close="">
+            ${key}
+        </foreach>
+        )
+        VALUES
+        (
+        <foreach item="value" index="key" collection="values" open=""
+                 separator="," close="">
+            <choose>
+                <when test="value instanceof java.util.Date">
+                    #{value,jdbcType=DATE}
+                </when>
+                <otherwise>
+                    #{value}
+                </otherwise>
+            </choose>
+        </foreach>
+        )
+    </sql>
+    <insert id="insertIdentity" parameterType="org.crud2.edit.EditParameter">
+        <selectKey keyProperty="keyValue" keyColumn="key" resultType="int" order="BEFORE">
+            select nextval('${table}_${key}_seq')
+        </selectKey>
+        <include refid="innerInsert"></include>
+    </insert>
+
+    <insert id="insert" parameterType="org.crud2.edit.EditParameter">
+        <include refid="innerInsert"/>;
+    </insert>
+
+    <update id="update" parameterType="org.crud2.edit.EditParameter">
+        UPDATE ${table}
+        SET
+        <foreach item="value" index="key" collection="values" open=""
+                 separator="," close="">
+            <choose>
+                <when test="value instanceof java.util.Date">
+                    ${key} = #{value,jdbcType=DATE}
+                </when>
+                <otherwise>
+                    ${key} = #{value}
+                </otherwise>
+            </choose>
+        </foreach>
+        WHERE
+        ${key} = #{keyValue}
+    </update>
+
+    <delete id="delete">
+        delete from ${table} where ${key} = ${keyValue}
+    </delete>
+</mapper>

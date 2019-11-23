@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 public class CRUD {
     private static CRUD2BeanFactory beanFactory;
 
-    public void setBeanFactory(CRUD2BeanFactory beanFactory){
-        CRUD.beanFactory=beanFactory;
+    public void setBeanFactory(CRUD2BeanFactory beanFactory) {
+        CRUD.beanFactory = beanFactory;
     }
 
     public static Query query() {
@@ -29,4 +29,6 @@ public class CRUD {
     public static Delete delete() {
         return beanFactory.getDelete();
     }
+
+    public static String dialect = "mysql";
 }

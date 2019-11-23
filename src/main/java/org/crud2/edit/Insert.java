@@ -9,7 +9,7 @@ public interface Insert {
 
     Insert value(String field, Object value);
 
-    Insert identity();
+    Insert identity(String key);
 
     Object flush();
 }

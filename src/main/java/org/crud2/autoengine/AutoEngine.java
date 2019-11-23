@@ -90,7 +90,7 @@ public class AutoEngine {
             }
         }
         if (keyColumn != null && keyColumn.getDefaultValueType() == 2) {
-            insert.identity();
+            insert.identity(keyColumn.getName());
         }
         return insert.flush();
     }

@@ -30,18 +30,22 @@ public class InsertImpl implements Insert {
     @Override
     public Insert values(Map<String, Object> values) {
         parameter.setValues(values);
+        if (parameter.isIdentity()) fixKeyInsertValue();
         return this;
     }
 
     @Override
     public Insert value(String field, Object value) {
         parameter.getValues().put(field, value);
+        if (parameter.isIdentity()) fixKeyInsertValue();
         return this;
     }
 
     @Override
-    public Insert identity() {
+    public Insert identity(String key) {
+        parameter.setKey(key);
         parameter.setIdentity(true);
+        fixKeyInsertValue();
         return this;
     }
 
@@ -52,6 +56,12 @@ public class InsertImpl implements Insert {
         } else {
             parameter.setIdentity(false);
             return null;
+        }
+    }
+
+    private void fixKeyInsertValue() {
+        if (parameter.getValues().containsKey(parameter.getKey())) {
+            parameter.setKeyValue(parameter.getValues().get(parameter.getKey()));
         }
     }
 }

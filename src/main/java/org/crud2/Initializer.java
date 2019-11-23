@@ -22,9 +22,13 @@ public class Initializer {
     @Autowired
     private NormalOperatorRegistrar normalOperatorRegistrar;
 
+    /***
+     * load xml mappers form resource
+     * use CRUD.dialect param
+     */
     public void initialize() {
         try {
-            Resource[] mapperLocations = new PathMatchingResourcePatternResolver().getResources("classpath:mappers/*.xml");
+            Resource[] mapperLocations = new PathMatchingResourcePatternResolver().getResources("classpath:mappers/" + CRUD.dialect + "/*.xml");
             for (Resource mapper : mapperLocations) {
                 XMLMapperBuilder builder = new XMLMapperBuilder(mapper.getInputStream(),
                         factory.getConfiguration(),

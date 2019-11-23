@@ -3,12 +3,12 @@ package org.crud2;
 import org.crud2.edit.Delete;
 import org.crud2.edit.Insert;
 import org.crud2.edit.Update;
-import org.crud2.edit.impl.DeleteImpl;
+import org.crud2.edit.impl.inner.InnerInsertImpl;
+import org.crud2.edit.impl.inner.InnerUpdateImpl;
 import org.crud2.query.Query;
 import org.crud2.query.Where;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
@@ -27,11 +27,11 @@ public class CRUD2BeanFactory {
     }
 
     public Insert getInsert() {
-        return context.getBean(Insert.class);
+        return context.getBean(InnerInsertImpl.class);
     }
 
     public Update getUpdate() {
-        return context.getBean(Update.class);
+        return context.getBean(InnerUpdateImpl.class);
     }
 
     public Delete getDelete() {

@@ -1,4 +1,6 @@
 package org.crud2.edit.impl.inner;
 
-public interface FixSQLCommandHander {
+@FunctionalInterface
+public interface FixSQLCommandHander<T> {
+    String getSql(T t);
 }

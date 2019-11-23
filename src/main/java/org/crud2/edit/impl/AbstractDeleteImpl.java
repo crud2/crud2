@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
-public class DeleteImpl implements Delete {
+public class AbstractDeleteImpl implements Delete {
     private EditParameter parameter;
     @Autowired
     private EditDAO editDao;
 
-    public DeleteImpl() {
+    public AbstractDeleteImpl() {
         parameter = new EditParameter();
     }
 

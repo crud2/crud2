@@ -10,14 +10,11 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
-@Scope("prototype")
-public class UpdateImpl implements Update {
-    private EditParameter parameter;
-    @Autowired
-    private EditDAO editDao;
 
-    public UpdateImpl() {
+public abstract class AbstractUpdateImpl implements Update {
+    protected EditParameter parameter;
+
+    public AbstractUpdateImpl() {
         parameter = new EditParameter();
     }
 
@@ -63,7 +60,5 @@ public class UpdateImpl implements Update {
     }
 
     @Override
-    public void flush() {
-        editDao.update(parameter);
-    }
+    public abstract void flush();
 }

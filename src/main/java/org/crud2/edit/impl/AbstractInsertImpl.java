@@ -9,15 +9,11 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component
-@Scope("prototype")
-public abstract class InsertAbstractImpl implements Insert {
+
+public abstract class AbstractInsertImpl implements Insert {
     protected EditParameter parameter;
 
-    @Autowired
-    private EditDAO editDao;
-
-    public InsertAbstractImpl() {
+    public AbstractInsertImpl() {
         parameter = new EditParameter();
     }
 

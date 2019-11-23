@@ -24,10 +24,9 @@
         </foreach>
         )
     </sql>
-    <insert id="insertIdentity" parameterType="org.crud2.edit.EditParameter">
-        <selectKey keyProperty="keyValue" keyColumn="key" resultType="int" order="BEFORE">
-            select nextval('${table}_${key}_seq')
-        </selectKey>
+    <!--TODO:set key-column by config-->
+    <insert id="insertIdentity" parameterType="org.crud2.edit.EditParameter" useGeneratedKeys="true" keyColumn="id"
+            keyProperty="keyValue">
         <include refid="innerInsert"></include>
     </insert>
 

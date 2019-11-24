@@ -2,6 +2,7 @@ package org.crud2.jdbc;
 
 import lombok.Data;
 import org.crud2.util.ArrayUtil;
+import org.crud2.util.ClassNames;
 import org.slf4j.Logger;
 
 @Data
@@ -10,11 +11,15 @@ public class PreparedSQLCommand {
     private Object[] params;
     private String commandText;
 
-    public void debug(Logger logger) {
+    void debug(Logger logger) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Prepare:" + commandText);
-            logger.debug("Parameters:" + ArrayUtil.toString(paramNames));
-            logger.debug("Values:" + ArrayUtil.toString(params));
+            logger.debug("==>  Preparing: " + commandText);
+            logger.debug("==> Parameters: " +
+                    ArrayUtil.toString(
+                            params,
+                            (t, i) -> String.format("%s->%s(%s)", paramNames[i], t, ClassNames.simple(t))
+                    )
+            );
         }
     }
 }

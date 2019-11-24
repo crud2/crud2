@@ -18,7 +18,7 @@ public class DefaultRequestSqlParameterGetter implements RequestSqlParameterGett
         Map<String, Object> parameters = new HashMap<>();
         Object value;
         /*
-         * step1:get parameters from form|querystring|payload
+         * step1:simple parameters from form|querystring|payload
          */
         {
             if (request.getMethod().equals("FORM")) {
@@ -38,7 +38,7 @@ public class DefaultRequestSqlParameterGetter implements RequestSqlParameterGett
             }
         }
         /*
-         * step2:get parameters from session
+         * step2:simple parameters from session
          */
         {
             HttpSession session = request.getSession();

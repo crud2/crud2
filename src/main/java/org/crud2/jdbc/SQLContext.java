@@ -4,14 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.jdbc.core.ArgumentPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
 
@@ -22,21 +22,21 @@ public class SQLContext {
     @Autowired
     JdbcTemplate template;
 
-    public void execute(PreparedSQLCommand sqlCommand) {
-        sqlCommand.debug(logger);
-        int rows = template.update(sqlCommand.getCommandText(), sqlCommand.getParams());
-        debug(rows);
+    public void execute(PreparedSQLCommand command) {
+        command.debug(logger);
+        int rows = template.update(command.getCommandText(), command.getParams());
+        debugAffect(rows);
     }
 
-    public Map<String, Object> executeGeneratedKey(PreparedSQLCommand sqlCommand) {
-        sqlCommand.debug(logger);
+    public Map<String, Object> executeGeneratedKey(PreparedSQLCommand command) {
+        command.debug(logger);
         KeyHolder keyHolder = new GeneratedKeyHolder();
         int rows = template.update(con -> {
-            PreparedStatement ps = con.prepareStatement(sqlCommand.getCommandText(), Statement.RETURN_GENERATED_KEYS);
-            newArgPreparedStatementSetter(sqlCommand.getParams()).setValues(ps);
+            PreparedStatement ps = con.prepareStatement(command.getCommandText(), Statement.RETURN_GENERATED_KEYS);
+            newArgPreparedStatementSetter(command.getParams()).setValues(ps);
             return ps;
         }, keyHolder);
-        debug(rows);
+        debugAffect(rows);
         Map<String, Object> keys = null;
         try {
             keys = keyHolder.getKeys();
@@ -45,13 +45,29 @@ public class SQLContext {
         return keys;
     }
 
+    public void query(PreparedSQLCommand command) {
+        command.debug(logger);
+        RowCallbackHandler rowCallbackHandler = new RowCountCallbackHandler() {
+            @Override
+            protected void processRow(ResultSet rs, int rowNum) throws SQLException {
+            }
+        };
+        template.query(command.getCommandText(), command.getParams(), rowCallbackHandler);
+    }
+
     private PreparedStatementSetter newArgPreparedStatementSetter(Object[] args) {
         return new ArgumentPreparedStatementSetter(args);
     }
 
-    private void debug(int rows) {
+    private void debugAffect(int rows) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Affected rows :" + rows);
+            logger.debug("<==    Affected: " + rows);
+        }
+    }
+
+    private void debugTotal(int rows) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("<==       Total: " + rows);
         }
     }
 }

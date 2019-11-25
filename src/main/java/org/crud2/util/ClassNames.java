@@ -17,6 +17,7 @@ public class ClassNames {
     }
 
     public static String simple(Object obj) {
+        if (obj == null) return "null";
         String name = obj.getClass().getSimpleName();
         return nameMap.getOrDefault(name, name);
     }

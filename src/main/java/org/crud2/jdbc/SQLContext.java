@@ -61,13 +61,13 @@ public class SQLContext {
 
     private void debugAffect(int rows) {
         if (logger.isDebugEnabled()) {
-            logger.debug("<==    Affected: " + rows);
+            logger.debug("<==   Affected: " + rows);
         }
     }
 
     private void debugTotal(int rows) {
         if (logger.isDebugEnabled()) {
-            logger.debug("<==       Total: " + rows);
+            logger.debug("<==      Total: " + rows);
         }
     }
 }

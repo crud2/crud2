@@ -1,13 +1,11 @@
 package org.crud2.util;
 
-import java.lang.reflect.Array;
-
 public class ArrayUtil {
     public static <T> String toString(T[] array, GetStringHander<T> hander) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < array.length; i++) {
             builder.append(hander.getString(array[i], i));
-            if (i < i - 1) builder.append(",");
+            if (i < array.length - 1) builder.append(",");
         }
         return builder.toString();
     }

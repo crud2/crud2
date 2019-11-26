@@ -21,6 +21,10 @@ public class PreparedSQLCommandBuilder {
         return new PreparedSQLCommandBuilder();
     }
 
+    public boolean contains(String text) {
+        return builder.indexOf(text) >= 0;
+    }
+
     public void append(String s) {
         builder.append(s);
     }
@@ -62,6 +66,28 @@ public class PreparedSQLCommandBuilder {
             paramNames.add(k);
             this.params.add(params.get(k));
         }
+    }
+
+    /***
+     * append params with anonymous param name
+     * @param params
+     */
+    public void appendParam(Object[] params) {
+        appendParam("p", params);
+    }
+
+    /***
+     * append muti-params for one param-name
+     * eg:use for "in" or "not in" operator
+     * @param param
+     * @param values
+     */
+    public void appendParam(String param, Object[] values) {
+        for (int i = 1; i <= values.length; i++) {
+            paramNames.add(param + i);
+            this.params.add(values[i]);
+        }
+
     }
 
     public void appendParam(String[] keys, Map<String, Object> params) {

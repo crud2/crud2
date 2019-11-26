@@ -1,6 +1,6 @@
 package org.crud2.query;
 
-import org.crud2.query.result.PagerArrayListResult;
+import org.crud2.jdbc.DataTable;
 import org.crud2.query.result.PagerResult;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public interface Query {
 
     <T> PagerResult<T> queryPager();
 
-    PagerResult<Map<String, Object>> queryListMapPager();
+    PagerResult<List<Map<String, Object>>>  queryListMapPager();
 
-    PagerArrayListResult queryListArrayPager();
+    PagerResult<DataTable> queryDataTablePager();
 }

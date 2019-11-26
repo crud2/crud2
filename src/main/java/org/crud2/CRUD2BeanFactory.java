@@ -3,10 +3,13 @@ package org.crud2;
 import org.crud2.edit.Delete;
 import org.crud2.edit.Insert;
 import org.crud2.edit.Update;
+import org.crud2.edit.impl.inner.InnerDeleteImpl;
 import org.crud2.edit.impl.inner.InnerInsertImpl;
 import org.crud2.edit.impl.inner.InnerUpdateImpl;
 import org.crud2.query.Query;
 import org.crud2.query.Where;
+import org.crud2.query.impl.inner.InnerQueryImpl;
+import org.crud2.query.impl.mybatis.MyBatisQueryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.DependsOn;
@@ -19,7 +22,7 @@ public class CRUD2BeanFactory {
     private ApplicationContext context;
 
     public Query getQuery() {
-        return context.getBean(Query.class);
+        return context.getBean(InnerQueryImpl.class);
     }
 
     public Where getWhere() {
@@ -35,6 +38,6 @@ public class CRUD2BeanFactory {
     }
 
     public Delete getDelete() {
-        return context.getBean(Delete.class);
+        return context.getBean(InnerDeleteImpl.class);
     }
 }

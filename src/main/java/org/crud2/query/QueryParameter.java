@@ -30,6 +30,28 @@ public class QueryParameter {
      */
     private int limit;
 
+    private boolean pageConfiged = false;
+
+    public void setPageIndex(int pageIndex) {
+        this.pageIndex = pageIndex;
+        pageConfiged = true;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+        pageConfiged = true;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+        pageConfiged = true;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
+        pageConfiged = true;
+    }
+
     private String pageType = PAGE_TYPE_SIZE_INDEX;
 
     public final static String PAGE_TYPE_SIZE_INDEX = "size-index";

@@ -1,12 +1,9 @@
-package org.crud2.query.result;
-
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
+package org.crud2.jdbc;
 
 /***
  * eg:LOGIN_USER_NAME->loginUserName
  */
-public class FirstWordLowerCamelCaseMapResultKeyNameResolver implements MapResultKeyNameResolver {
+public class FirstWordLowerCamelCaseColumnKeyNameResolver implements ColumnKeyNameResolver {
     @Override
     public String resolve(String orignal) {
         StringBuilder result = new StringBuilder();

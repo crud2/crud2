@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class PagerResult<T> extends PagerSerializable {
-    private List<T> data;
+    private T data;
 }

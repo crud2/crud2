@@ -12,12 +12,14 @@ import org.crud2.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 
+@Primary
 @Component
 @Scope("prototype")
 public class InnerQueryImpl extends AbstractQueryImpl {
@@ -29,6 +31,10 @@ public class InnerQueryImpl extends AbstractQueryImpl {
 
     private PreparedSQLCommand countCommand;
     private PreparedSQLCommand dataCommand;
+
+    public InnerQueryImpl(){
+        System.out.println("InnerQueryImpl inited");
+    }
 
     @Override
     public List queryList() {
@@ -42,8 +48,9 @@ public class InnerQueryImpl extends AbstractQueryImpl {
     }
 
     @Override
-    public List<Map<String, Object>> queryMapList() {
-        return null;
+    public List<Map<String, Object>> queryListMap() {
+        buildQueryCommand();
+        return sqlContext.queryForMapList(dataCommand);
     }
 
     @Override
@@ -63,7 +70,7 @@ public class InnerQueryImpl extends AbstractQueryImpl {
 
     @Override
     public PagerResult<List<Map<String, Object>>> queryListMapPager() {
-        buildQueryPagerCommand();
+        buildQueryCommand(true);
         long total = sqlContext.queryForLong(countCommand);
         List<Map<String, Object>> data = sqlContext.queryForMapList(dataCommand);
         PagerResult<List<Map<String, Object>>> result = new PagerResult<>();
@@ -74,7 +81,7 @@ public class InnerQueryImpl extends AbstractQueryImpl {
 
     @Override
     public PagerResult<DataTable> queryDataTablePager() {
-        buildQueryPagerCommand();
+        buildQueryCommand(true);
         long total = sqlContext.queryForLong(countCommand);
         DataTable data = sqlContext.queryDataTable(dataCommand);
         PagerResult<DataTable> result = new PagerResult<>();
@@ -84,27 +91,10 @@ public class InnerQueryImpl extends AbstractQueryImpl {
     }
 
     private void buildQueryCommand() {
-        PreparedSQLCommandBuilder dataQueryBuilder = PreparedSQLCommandBuilder.newInstance();
-        if (StringUtil.isNullOrEmpty(parameter.getSql()) && StringUtil.isNullOrEmpty(parameter.getQueryTable())) {
-            logger.error("query-sql and query-table can not be all null");
-            return;
-        }
-        if (isUseSqlQuery()) {
-            dataQueryBuilder.append(parameter.getSql());
-        } else {
-            dataQueryBuilder.append("SELECT ");
-            if (parameter.getQueryFields() != null && parameter.getQueryFields().length != 0) {
-                dataQueryBuilder.append(parameter.getQueryFields());
-            } else {
-                dataQueryBuilder.append("*");
-            }
-            dataQueryBuilder.append(" FROM %s ", parameter.getQueryTable());
-        }
-        buildConditionCommand(dataQueryBuilder, null);
-        dataCommand = dataQueryBuilder.build();
+        buildQueryCommand(false);
     }
 
-    private void buildQueryPagerCommand() {
+    private void buildQueryCommand(boolean pager) {
         PreparedSQLCommandBuilder dataQueryBuilder = PreparedSQLCommandBuilder.newInstance();
         PreparedSQLCommandBuilder countQueryBuilder = PreparedSQLCommandBuilder.newInstance();
         if (StringUtil.isNullOrEmpty(parameter.getSql()) && StringUtil.isNullOrEmpty(parameter.getQueryTable())) {
@@ -113,57 +103,57 @@ public class InnerQueryImpl extends AbstractQueryImpl {
         }
         if (isUseSqlQuery()) {
             dataQueryBuilder.append(parameter.getSql());
-            countQueryBuilder.append("SELECT COUNT(1) FROM ( %s", parameter.getSql());
-            buildConditionCommand(dataQueryBuilder, countQueryBuilder);
-            countQueryBuilder.append(") _p");
+            if (pager) countQueryBuilder.append("SELECT COUNT(1) FROM ( %s", parameter.getSql());
+            buildConditionCommand(dataQueryBuilder, countQueryBuilder, pager);
+            if (pager) countQueryBuilder.append(") _p");
         } else {
             dataQueryBuilder.append("SELECT ");
-            countQueryBuilder.append("SELECT COUNT(1) FROM %s ", parameter.getQueryTable());
+            if (pager) countQueryBuilder.append("SELECT COUNT(1) FROM %s ", parameter.getQueryTable());
             if (parameter.getQueryFields() != null && parameter.getQueryFields().length != 0) {
                 dataQueryBuilder.append(parameter.getQueryFields());
             } else {
                 dataQueryBuilder.append("*");
             }
             dataQueryBuilder.append(" FROM %s ", parameter.getQueryTable());
-            buildConditionCommand(dataQueryBuilder, countQueryBuilder);
+            buildConditionCommand(dataQueryBuilder, countQueryBuilder, pager);
         }
-        buildConditionCommand(dataQueryBuilder, countQueryBuilder);
+        buildConditionCommand(dataQueryBuilder, countQueryBuilder, pager);
         buildPagerCommand(dataQueryBuilder);
         dataCommand = dataQueryBuilder.build();
-        countCommand = countQueryBuilder.build();
+        if (pager) countCommand = countQueryBuilder.build();
     }
 
-    private void buildConditionCommand(PreparedSQLCommandBuilder dataQueryBuilder, PreparedSQLCommandBuilder countQueryBuilder) {
+    private void buildConditionCommand(PreparedSQLCommandBuilder dataQueryBuilder, PreparedSQLCommandBuilder countQueryBuilder, boolean pager) {
         if (parameter.getConditions() != null && parameter.getConditions().size() > 0) {
             List<Condition> conditions = parameter.getConditions();
             if (!(isUseSqlQuery() && parameter.getSql().toUpperCase().contains(" WHERE "))) {
                 dataQueryBuilder.append(" WHERE ");
-                if (countQueryBuilder != null) countQueryBuilder.append(" WHERE ");
+                if (pager) countQueryBuilder.append(" WHERE ");
             }
             conditions.forEach(t -> {
                 dataQueryBuilder.append(" %s %s ", t.getField(), t.getOper());
-                if (countQueryBuilder != null) countQueryBuilder.append(" %s %s ", t.getField(), t.getOper());
+                if (pager) countQueryBuilder.append(" %s %s ", t.getField(), t.getOper());
                 switch (t.getOper()) {
                     case "in":
                     case "not in":
                         dataQueryBuilder.append("(");
-                        if (countQueryBuilder != null) countQueryBuilder.append("(");
+                        if (pager) countQueryBuilder.append("(");
                         Object[] values = (Object[]) t.getValue();
                         dataQueryBuilder.appendPlaceolder(values.length);
-                        if (countQueryBuilder != null) countQueryBuilder.appendPlaceolder(values.length);
+                        if (pager) countQueryBuilder.appendPlaceolder(values.length);
                         dataQueryBuilder.append(")");
-                        if (countQueryBuilder != null) countQueryBuilder.append(")");
+                        if (pager) countQueryBuilder.append(")");
                         dataQueryBuilder.appendParam(t.getField(), values);
-                        if (countQueryBuilder != null) countQueryBuilder.appendParam(t.getField(), values);
+                        if (pager) countQueryBuilder.appendParam(t.getField(), values);
                         break;
                     case "is null":
                     case "is not null":
                         break;
                     default:
                         dataQueryBuilder.appendPlaceholder();
-                        if (countQueryBuilder != null) countQueryBuilder.appendPlaceholder();
+                        if (pager) countQueryBuilder.appendPlaceholder();
                         dataQueryBuilder.appendParam(t.getOper(), t.getValue());
-                        if (countQueryBuilder != null) countQueryBuilder.appendParam(t.getOper(), t.getValue());
+                        if (pager) countQueryBuilder.appendParam(t.getOper(), t.getValue());
                         break;
                 }
             });

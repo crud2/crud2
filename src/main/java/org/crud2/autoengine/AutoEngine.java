@@ -6,7 +6,6 @@ import org.crud2.autoengine.config.Module;
 import org.crud2.autoengine.config.ModuleDefineFactory;
 import org.crud2.autoengine.exception.NullModuleException;
 import org.crud2.autoengine.listsource.KeyValueListSourceParse;
-import org.crud2.util.KeyValuePair;
 import org.crud2.autoengine.listsource.ListSourceParse;
 import org.crud2.autoengine.listsource.SqlListSourceParse;
 import org.crud2.autoengine.sql.SqlTextParameterResolver;
@@ -74,15 +73,22 @@ public class AutoEngine {
         return query;
     }
 
-    public static PagerResult<List<Map<String, Object>>> queryListMapPager(
+    /**
+     * query module datasource use module define
+     *
+     * @param moduleId
+     * @param params             parameter for sql ,not for user defined where
+     * @param beforeQueryHandler callback for before query execute , such as use for prepare where condition
+     * @param afterQueryHandler  callback for after query execute, such as secondary processing of result set
+     * @return
+     */
+    public static List<Map<String, Object>> queryListMap(
             String moduleId, Map<String, Object> params,
-            int pageSize, int pageIndex,
-            BeforeQueryHander beforeQueryHander, AfterQueryHandler<PagerResult<List<Map<String, Object>>>> afterQueryHandler) {
+            BeforeQueryHander beforeQueryHandler, AfterQueryHandler<List<Map<String, Object>>> afterQueryHandler) {
         Query query = query(moduleId, params);
-        query.pageSizeIndex(pageSize, pageIndex);
-        beforeQueryHander.handle(query);
-        PagerResult<List<Map<String, Object>>> result = query.queryListMapPager();
-        afterQueryHandler.handle(result);
+        if (beforeQueryHandler != null) beforeQueryHandler.handle(query);
+        List<Map<String, Object>> result = query.queryListMap();
+        if (afterQueryHandler != null) afterQueryHandler.handle(result);
         return result;
     }
 
@@ -90,17 +96,95 @@ public class AutoEngine {
      * query module datasource use module define
      *
      * @param moduleId
-     * @param params            parameter for sql ,not for user defined where
-     * @param pageIndex         page index,start from 1
-     * @param pageSize
-     * @param beforeQueryHander
+     * @param params             parameter for sql ,not for user defined where
+     * @param beforeQueryHandler callback for before query execute , such as use for prepare where condition
      * @return
      */
-    public static PagerResult<List<Map<String, Object>>> queryListMapPager(
+    public static List<Map<String, Object>> queryListMap(
+            String moduleId, Map<String, Object> params,
+            BeforeQueryHander beforeQueryHandler) {
+        return queryListMap(moduleId, params, beforeQueryHandler, result -> {
+            Module module = getAndCheckModule(moduleId);
+            Map<String, RepeatableLinkedMap<String, Object>> listSources = new HashMap<>();
+            for (Column column : module.getColumns()) {
+                if (column.getListReplace() == 1) {
+                    listSources.put(column.getName(), getSourceList(column));
+                }
+            }
+            result.forEach(d -> {
+                listSources.keySet().forEach(k -> {
+                    String repText = listSources.get(k).getByValue(d.get(k)).getKey();
+                    d.put(k + "_Rep", repText);
+                });
+            });
+        });
+    }
+
+    /**
+     * query module datasource use module define
+     *
+     * @param moduleId
+     * @param params   parameter for sql ,not for user defined where
+     * @return
+     */
+    public static List<Map<String, Object>> queryListMap(
+            String moduleId, Map<String, Object> params) {
+        return queryListMap(moduleId, params, null, null);
+    }
+
+    /**
+     * execute module sql script
+     *
+     * @param moduleId
+     * @param params   parameter for sql ,not for user defined where
+     * @return
+     */
+    public static void execute(
+            String moduleId, Map<String, Object> params) {
+        Module module = getAndCheckModule(moduleId);
+        if (module == null) return;
+        String sql = crud2BeanFactory.getBean(SqlTextParameterResolver.class).resolve(module.getSql(), params);
+        crud2BeanFactory.getUpdate().sql(sql).flush();
+    }
+
+    /**
+     * query module pager datasource use module define
+     *
+     * @param moduleId
+     * @param params             parameter for sql ,not for user defined where
+     * @param pageSize           page size ,such as 20
+     * @param pageIndex          page index,start from 1
+     * @param beforeQueryHandler callback for before query execute , such as use for prepare where condition
+     * @param afterQueryHandler  callback for after query execute, such as secondary processing of result set
+     * @return
+     */
+    public static PagerResult<List<Map<String, Object>>> queryListMap(
             String moduleId, Map<String, Object> params,
             int pageSize, int pageIndex,
-            BeforeQueryHander beforeQueryHander) {
-        return queryListMapPager(moduleId, params, pageSize, pageIndex, beforeQueryHander, result -> {
+            BeforeQueryHander beforeQueryHandler, AfterQueryHandler<PagerResult<List<Map<String, Object>>>> afterQueryHandler) {
+        Query query = query(moduleId, params);
+        query.pageSizeIndex(pageSize, pageIndex);
+        beforeQueryHandler.handle(query);
+        PagerResult<List<Map<String, Object>>> result = query.queryListMapPager();
+        afterQueryHandler.handle(result);
+        return result;
+    }
+
+    /**
+     * query module pager datasource use module define
+     *
+     * @param moduleId
+     * @param params             parameter for sql ,not for user defined where
+     * @param pageIndex          page index,start from 1
+     * @param pageSize           page size ,such as 20
+     * @param beforeQueryHandler callback for before query execute , such as use for prepare where condition
+     * @return
+     */
+    public static PagerResult<List<Map<String, Object>>> queryListMap(
+            String moduleId, Map<String, Object> params,
+            int pageSize, int pageIndex,
+            BeforeQueryHander beforeQueryHandler) {
+        return queryListMap(moduleId, params, pageSize, pageIndex, beforeQueryHandler, result -> {
             Module module = getAndCheckModule(moduleId);
             Map<String, RepeatableLinkedMap<String, Object>> listSources = new HashMap<>();
             for (Column column : module.getColumns()) {
@@ -161,7 +245,7 @@ public class AutoEngine {
             logger.error(String.format("key %s must have value", keyColumn.getName()));
             return;
         }
-        update.byKey(keyColumn.getName(), Convert.toObject(keyValObj, keyColumn.getValue()));
+        update.byKey(keyColumn.getName(), Convert.toObject(keyValObj, keyColumn.getSortType()));
         Column[] columns = module.getColumns();
         Map<String, Object> updateValues = new HashMap<>();
         for (Column c : columns) {

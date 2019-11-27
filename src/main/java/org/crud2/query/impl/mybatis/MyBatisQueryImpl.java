@@ -40,7 +40,7 @@ public class MyBatisQueryImpl extends AbstractQueryImpl {
     }
 
     @Override
-    public List<Map<String, Object>> queryMapList() {
+    public List<Map<String, Object>> queryListMap() {
         return null;
     }
 

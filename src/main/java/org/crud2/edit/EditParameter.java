@@ -8,6 +8,7 @@ import java.util.Map;
 @Data
 public class EditParameter {
     private String table;
+    private String sql;
     private String key;
     private Object keyValue;
     private boolean identity = false;

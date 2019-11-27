@@ -29,7 +29,7 @@ public interface Query {
 
     DataTable queryDataTable();
 
-    List<Map<String, Object>> queryMapList();
+    List<Map<String, Object>> queryListMap();
 
     <T> T get();
 

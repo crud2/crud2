@@ -1,5 +1,6 @@
 package org.crud2.autoengine.listsource;
 
+import org.crud2.CRUD2BeanFactory;
 import org.crud2.jdbc.DataRow;
 import org.crud2.jdbc.DataTable;
 import org.crud2.query.Query;
@@ -18,11 +19,11 @@ import java.util.List;
  */
 public class SqlListSourceParse implements ListSourceParse {
     @Autowired
-    private Query query;
+    private CRUD2BeanFactory beanFactory;
 
     @Override
     public RepeatableLinkedMap<String, Object> parse(String source, String valueType) {
-        DataTable dataTable = query.sql(source).queryDataTable();
+        DataTable dataTable = beanFactory.getQuery().sql(source).queryDataTable();
         RepeatableLinkedMap<String, Object> result = new RepeatableLinkedMap<>();
         for (int i = 0; i < dataTable.getRows().length; i++) {
             DataRow row = dataTable.getRow(i);

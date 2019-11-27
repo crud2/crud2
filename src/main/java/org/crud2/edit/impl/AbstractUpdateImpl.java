@@ -25,6 +25,12 @@ public abstract class AbstractUpdateImpl implements Update {
     }
 
     @Override
+    public Update sql(String sql) {
+        parameter.setSql(sql);
+        return this;
+    }
+
+    @Override
     public Update set(Map<String, Object> values) {
         parameter.setValues(values);
         return this;

@@ -17,4 +17,11 @@ public class Module {
         }
         return null;
     }
+
+    public Column getColumn(String name) {
+        for (Column column : columns) {
+            if (column.getName().equals(name)) return column;
+        }
+        return null;
+    }
 }

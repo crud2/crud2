@@ -35,6 +35,11 @@ public class MyBatisQueryImpl extends AbstractQueryImpl {
     }
 
     @Override
+    public DataTable queryDataTable() {
+        return null;
+    }
+
+    @Override
     public List<Map<String, Object>> queryMapList() {
         return null;
     }

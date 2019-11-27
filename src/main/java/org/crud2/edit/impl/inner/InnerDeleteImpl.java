@@ -26,7 +26,7 @@ public class InnerDeleteImpl extends AbstractDeleteImpl {
 
     private PreparedSQLCommand buildDeleteCommand() {
         PreparedSQLCommandBuilder builder = PreparedSQLCommandBuilder.newInstance();
-        builder.append("DELETE FROM %S", parameter.getTable());
+        builder.append("DELETE FROM %s", parameter.getTable());
         builder.append(" WHERE %s = ?", parameter.getKey());
         builder.appendParam(parameter.getKey(), parameter.getKeyValue());
         return builder.build();

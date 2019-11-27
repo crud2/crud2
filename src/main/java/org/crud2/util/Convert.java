@@ -12,6 +12,20 @@ import java.util.Date;
 public class Convert {
     public static Logger logger = LoggerFactory.getLogger(Convert.class);
 
+    public static Object toObject(Object value,String type){
+        switch (type) {
+            case "float":
+                return Convert.toDecimal(value);
+            case "date":
+                return Convert.toDate(value);
+            case "int":
+                return Convert.toInt(value);
+            case "text":
+                return value.toString();
+        }
+        return value;
+    }
+
     public static Integer toInt(String s) {
         if (s == null || s.length() == 0) return null;
         try {

@@ -21,6 +21,10 @@ public class CRUD2BeanFactory {
     @Autowired
     private ApplicationContext context;
 
+    public <T> T getBean(Class<T> clazz){
+        return context.getBean(clazz);
+    }
+
     public Query getQuery() {
         return context.getBean(InnerQueryImpl.class);
     }

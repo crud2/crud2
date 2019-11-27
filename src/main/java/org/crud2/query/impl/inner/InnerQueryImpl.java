@@ -36,6 +36,12 @@ public class InnerQueryImpl extends AbstractQueryImpl {
     }
 
     @Override
+    public DataTable queryDataTable() {
+        buildQueryCommand();
+        return sqlContext.queryDataTable(dataCommand);
+    }
+
+    @Override
     public List<Map<String, Object>> queryMapList() {
         return null;
     }
@@ -57,7 +63,7 @@ public class InnerQueryImpl extends AbstractQueryImpl {
 
     @Override
     public PagerResult<List<Map<String, Object>>> queryListMapPager() {
-        buildQueryCommand();
+        buildQueryPagerCommand();
         long total = sqlContext.queryForLong(countCommand);
         List<Map<String, Object>> data = sqlContext.queryForMapList(dataCommand);
         PagerResult<List<Map<String, Object>>> result = new PagerResult<>();
@@ -68,7 +74,7 @@ public class InnerQueryImpl extends AbstractQueryImpl {
 
     @Override
     public PagerResult<DataTable> queryDataTablePager() {
-        buildQueryCommand();
+        buildQueryPagerCommand();
         long total = sqlContext.queryForLong(countCommand);
         DataTable data = sqlContext.queryDataTable(dataCommand);
         PagerResult<DataTable> result = new PagerResult<>();
@@ -77,8 +83,28 @@ public class InnerQueryImpl extends AbstractQueryImpl {
         return result;
     }
 
-
     private void buildQueryCommand() {
+        PreparedSQLCommandBuilder dataQueryBuilder = PreparedSQLCommandBuilder.newInstance();
+        if (StringUtil.isNullOrEmpty(parameter.getSql()) && StringUtil.isNullOrEmpty(parameter.getQueryTable())) {
+            logger.error("query-sql and query-table can not be all null");
+            return;
+        }
+        if (isUseSqlQuery()) {
+            dataQueryBuilder.append(parameter.getSql());
+        } else {
+            dataQueryBuilder.append("SELECT ");
+            if (parameter.getQueryFields() != null && parameter.getQueryFields().length != 0) {
+                dataQueryBuilder.append(parameter.getQueryFields());
+            } else {
+                dataQueryBuilder.append("*");
+            }
+            dataQueryBuilder.append(" FROM %s ", parameter.getQueryTable());
+        }
+        buildConditionCommand(dataQueryBuilder, null);
+        dataCommand = dataQueryBuilder.build();
+    }
+
+    private void buildQueryPagerCommand() {
         PreparedSQLCommandBuilder dataQueryBuilder = PreparedSQLCommandBuilder.newInstance();
         PreparedSQLCommandBuilder countQueryBuilder = PreparedSQLCommandBuilder.newInstance();
         if (StringUtil.isNullOrEmpty(parameter.getSql()) && StringUtil.isNullOrEmpty(parameter.getQueryTable())) {
@@ -101,6 +127,7 @@ public class InnerQueryImpl extends AbstractQueryImpl {
             dataQueryBuilder.append(" FROM %s ", parameter.getQueryTable());
             buildConditionCommand(dataQueryBuilder, countQueryBuilder);
         }
+        buildConditionCommand(dataQueryBuilder, countQueryBuilder);
         buildPagerCommand(dataQueryBuilder);
         dataCommand = dataQueryBuilder.build();
         countCommand = countQueryBuilder.build();
@@ -111,32 +138,32 @@ public class InnerQueryImpl extends AbstractQueryImpl {
             List<Condition> conditions = parameter.getConditions();
             if (!(isUseSqlQuery() && parameter.getSql().toUpperCase().contains(" WHERE "))) {
                 dataQueryBuilder.append(" WHERE ");
-                countQueryBuilder.append(" WHERE ");
+                if (countQueryBuilder != null) countQueryBuilder.append(" WHERE ");
             }
             conditions.forEach(t -> {
                 dataQueryBuilder.append(" %s %s ", t.getField(), t.getOper());
-                countQueryBuilder.append(" %s %s ", t.getField(), t.getOper());
+                if (countQueryBuilder != null) countQueryBuilder.append(" %s %s ", t.getField(), t.getOper());
                 switch (t.getOper()) {
                     case "in":
                     case "not in":
                         dataQueryBuilder.append("(");
-                        countQueryBuilder.append("(");
+                        if (countQueryBuilder != null) countQueryBuilder.append("(");
                         Object[] values = (Object[]) t.getValue();
                         dataQueryBuilder.appendPlaceolder(values.length);
-                        countQueryBuilder.appendPlaceolder(values.length);
+                        if (countQueryBuilder != null) countQueryBuilder.appendPlaceolder(values.length);
                         dataQueryBuilder.append(")");
-                        countQueryBuilder.append(")");
+                        if (countQueryBuilder != null) countQueryBuilder.append(")");
                         dataQueryBuilder.appendParam(t.getField(), values);
-                        countQueryBuilder.appendParam(t.getField(), values);
+                        if (countQueryBuilder != null) countQueryBuilder.appendParam(t.getField(), values);
                         break;
                     case "is null":
                     case "is not null":
                         break;
                     default:
                         dataQueryBuilder.appendPlaceholder();
-                        countQueryBuilder.appendPlaceholder();
+                        if (countQueryBuilder != null) countQueryBuilder.appendPlaceholder();
                         dataQueryBuilder.appendParam(t.getOper(), t.getValue());
-                        countQueryBuilder.appendParam(t.getOper(), t.getValue());
+                        if (countQueryBuilder != null) countQueryBuilder.appendParam(t.getOper(), t.getValue());
                         break;
                 }
             });

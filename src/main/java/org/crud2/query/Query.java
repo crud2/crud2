@@ -27,6 +27,8 @@ public interface Query {
 
     List queryList();
 
+    DataTable queryDataTable();
+
     List<Map<String, Object>> queryMapList();
 
     <T> T get();

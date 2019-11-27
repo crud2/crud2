@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
-public abstract class MybatisDeleteImpl extends AbstractDeleteImpl {
+public class MybatisDeleteImpl extends AbstractDeleteImpl {
     @Autowired
     private EditDAO editDao;
 

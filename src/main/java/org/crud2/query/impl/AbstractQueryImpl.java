@@ -110,6 +110,9 @@ public abstract class AbstractQueryImpl implements Query {
         return null;
     }
 
+    @Autowired
+    public abstract DataTable queryDataTable();
+
     @Override
     public List<Map<String, Object>> queryMapList() {
         return null;
@@ -131,12 +134,12 @@ public abstract class AbstractQueryImpl implements Query {
     }
 
     @Override
-    public abstract PagerResult<List<Map<String, Object>>>  queryListMapPager();
+    public abstract PagerResult<List<Map<String, Object>>> queryListMapPager();
 
     @Override
     public abstract PagerResult<DataTable> queryDataTablePager();
 
-    protected  Map<String, String> getKeyNameMap(List<Map<String, Object>> data) {
+    protected Map<String, String> getKeyNameMap(List<Map<String, Object>> data) {
         Map<String, Object> item0 = data.get(0);
         Map<String, String> nameMap = new HashMap<>();
         item0.keySet().forEach(k -> {

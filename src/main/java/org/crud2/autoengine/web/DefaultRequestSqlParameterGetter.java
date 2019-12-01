@@ -1,13 +1,20 @@
 package org.crud2.autoengine.web;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultRequestSqlParameterGetter implements RequestSqlParameterGetter {
+    private static Logger logger = LoggerFactory.getLogger(DefaultRequestSqlParameterGetter.class);
+
     @Autowired
     private ModuleSqlTextParameterConfig moduleSqlTextParameterConfig;
 
@@ -21,12 +28,14 @@ public class DefaultRequestSqlParameterGetter implements RequestSqlParameterGett
          * step1:simple parameters from form|querystring|payload
          */
         {
-            if (request.getMethod().equals("FORM")) {
+            if (request.getMethod().equals("POST")) {
                 String contentType = request.getContentType();
                 if (contentType.contains("application/json")) {
-                    //request.getInputStream();//?stream can just read once
+                    String json = getRequestBody(request);
+                    JSONObject jsonObject = JSON.parseObject(json);
+                    parameters.putAll(jsonObject);
                 } else if (contentType.contains("application/xml")) {
-                    //TODO:fix xml getter
+                    //TODO:xml parse
                 }
                 for (String name : names) {
                     if (parameters.containsKey(name)) continue;
@@ -60,5 +69,23 @@ public class DefaultRequestSqlParameterGetter implements RequestSqlParameterGett
             }
         }
         return parameters;
+    }
+
+    private String getRequestBody(HttpServletRequest request) {
+        try {
+            if (request instanceof ReusableHttpServletRequestWrapper) {//post json
+                return ((ReusableHttpServletRequestWrapper) request).getRequestContent();
+            } else {
+                Map<String, Object> params = new HashMap<>(request.getParameterMap());
+                if (params.size() > 0) {
+                    return new JSONObject(params).toJSONString();
+                }
+            }
+        } catch (UnsupportedEncodingException e) {
+            logger.error("get request body error", e);
+        } catch (Exception e) {
+            logger.error("get request body error", e);
+        }
+        return null;
     }
 }

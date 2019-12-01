@@ -31,11 +31,6 @@ public class InnerQueryImpl extends AbstractQueryImpl {
 
     private PreparedSQLCommand countCommand;
     private PreparedSQLCommand dataCommand;
-
-    public InnerQueryImpl(){
-        System.out.println("InnerQueryImpl inited");
-    }
-
     @Override
     public List queryList() {
         return null;

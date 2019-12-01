@@ -15,14 +15,20 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.ParameterizedType;
+
 @Component
 @DependsOn("curd2initializer")
 public class CRUD2BeanFactory {
     @Autowired
     private ApplicationContext context;
 
-    public <T> T getBean(Class<T> clazz){
+    public <T> T getBean(Class<T> clazz) {
         return context.getBean(clazz);
+    }
+
+    public Object getBean(String name) {
+        return context.getBean(name);
     }
 
     public Query getQuery() {

@@ -1,6 +1,7 @@
 package org.crud2.autoengine.config;
 
 import org.crud2.autoengine.sql.SqlTextParameterResolver;
+import org.crud2.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +24,13 @@ public class ModuleDefineFactory {
 
     private Resource[] moduleConfigs;
     private Map<String, Module> moduleMap;
+    private Map<String, String> originalDefineMap;
     private Map<String, String[]> sqlParameterNames;
 
     public ModuleDefineFactory() {
         moduleMap = new HashMap<>();
         sqlParameterNames = new HashMap<>();
+        originalDefineMap = new HashMap<>();
     }
 
     public void setModuleConfigs(Resource[] moduleConfigs) {
@@ -51,6 +54,15 @@ public class ModuleDefineFactory {
         return sqlParameterNames.getOrDefault(moduleId, null);
     }
 
+    public void regModule(Module module) {
+        if (moduleMap.containsKey(module.getId())) moduleMap.remove(module.getId());
+        moduleMap.put(module.getId(), module);
+    }
+
+    public String getOrignalConfig(String moduleId) {
+        return originalDefineMap.getOrDefault(moduleId, null);
+    }
+
     public void regModules() {
         logger.info("reg modules");
         if (moduleConfigs == null || moduleConfigs.length == 0) {
@@ -65,13 +77,19 @@ public class ModuleDefineFactory {
                 logger.error(String.format("read module config file: %s fail", resource.getFilename()), e);
                 continue;
             }
-            Module module = moduleConfigReader.read(stream);
+            String configString = StringUtil.fromInputStream(stream);
+            if (configString.length() == 0) {
+                logger.error(String.format("read module config file: %s fail,empty string", resource.getFilename()));
+                continue;
+            }
+            Module module = moduleConfigReader.read(configString);
             if (module == null) {
                 logger.debug(String.format("read module config file: %s fail", resource.getFilename()));
                 continue;
             }
+            originalDefineMap.put(module.getId(), configString);
             logger.debug(String.format("module config file '%s' load complete", resource.getFilename()));
-            moduleMap.put(module.getId(), module);
+            regModule(module);
         }
         logger.info("reg modules complete");
     }

@@ -8,6 +8,7 @@ import org.crud2.autoengine.exception.NullModuleException;
 import org.crud2.autoengine.listsource.KeyValueListSourceParse;
 import org.crud2.autoengine.listsource.ListSourceParse;
 import org.crud2.autoengine.listsource.SqlListSourceParse;
+import org.crud2.autoengine.plugin.Plugin;
 import org.crud2.autoengine.sql.SqlTextParameterResolver;
 import org.crud2.edit.Delete;
 import org.crud2.edit.Insert;
@@ -42,6 +43,8 @@ public class AutoEngine {
         AutoEngine.sqlTextParameterResolver = sqlTextParameterResolver;
     }
 
+    // region query
+
     public static Query query(String moduleId) {
         return query(moduleId, null);
     }
@@ -72,6 +75,21 @@ public class AutoEngine {
         }
         return query;
     }
+
+    // endregion
+
+    // region queryPluginList
+    public static List queryPluginList(String pluginName, String moduleId, Map<String, Object> params) {
+        Plugin plugin = (Plugin) crud2BeanFactory.getBean(pluginName);
+        return queryPluginList(plugin, moduleId, params);
+    }
+
+    public static  <T> List<T> queryPluginList(Plugin<T> plugIn, String moduleId, Map<String, Object> params) {
+        Module module = getAndCheckModule(moduleId);
+        return plugIn.query(module, params);
+    }
+
+    //endregion
 
     /**
      * query module datasource use module define
@@ -311,10 +329,10 @@ public class AutoEngine {
     }
 
     public static RepeatableLinkedMap<String, Object> getSourceList(Column column) {
-        if (StringUtil.isNullOrEmpty(column.getValue())) {
+        if (!StringUtil.isNullOrEmpty(column.getValue())) {
             ListSourceParse listSourceParse = crud2BeanFactory.getBean(KeyValueListSourceParse.class);
             return listSourceParse.parse(column.getValue(), column.getSortType());
-        } else if (StringUtil.isNullOrEmpty(column.getEditSql())) {
+        } else if (!StringUtil.isNullOrEmpty(column.getEditSql())) {
             ListSourceParse listSourceParse = crud2BeanFactory.getBean(SqlListSourceParse.class);
             return listSourceParse.parse(column.getEditSql(), column.getSortType());
         } else {

@@ -1,14 +1,10 @@
 package org.crud2.autoengine.listsource;
 
 import org.crud2.util.Convert;
-import org.crud2.util.KeyValuePair;
 import org.crud2.util.RepeatableLinkedMap;
 import org.crud2.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /***
  * key-value like list source parse
@@ -23,7 +19,7 @@ public class KeyValueListSourceParse implements ListSourceParse {
         RepeatableLinkedMap<String, Object> result = new RepeatableLinkedMap<>();
         for (String tempPairStr : tempPairs) {
             if (StringUtil.isNullOrEmpty(tempPairStr)) continue;
-            String[] pair = tempPairStr.split(tempPairStr);
+            String[] pair = tempPairStr.split(":");
             if (pair.length != 2) {
                 logger.error(String.format("list-source define error : %s", source));
                 break;

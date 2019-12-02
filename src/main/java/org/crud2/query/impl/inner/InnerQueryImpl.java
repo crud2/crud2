@@ -93,7 +93,7 @@ public class InnerQueryImpl extends AbstractQueryImpl {
         PreparedSQLCommandBuilder dataQueryBuilder = PreparedSQLCommandBuilder.newInstance();
         PreparedSQLCommandBuilder countQueryBuilder = PreparedSQLCommandBuilder.newInstance();
         if (StringUtil.isNullOrEmpty(parameter.getSql()) && StringUtil.isNullOrEmpty(parameter.getQueryTable())) {
-            logger.error("query-sql and query-table can not be all null");
+            logger.error("sql and edit table empty error");
             return;
         }
         if (isUseSqlQuery()) {

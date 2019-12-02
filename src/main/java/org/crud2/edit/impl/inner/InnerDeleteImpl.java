@@ -4,6 +4,7 @@ import org.crud2.edit.impl.AbstractDeleteImpl;
 import org.crud2.jdbc.PreparedSQLCommand;
 import org.crud2.jdbc.PreparedSQLCommandBuilder;
 import org.crud2.jdbc.SQLContext;
+import org.crud2.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,16 @@ public class InnerDeleteImpl extends AbstractDeleteImpl {
 
     private PreparedSQLCommand buildDeleteCommand() {
         PreparedSQLCommandBuilder builder = PreparedSQLCommandBuilder.newInstance();
-        builder.append("DELETE FROM %s", parameter.getTable());
-        builder.append(" WHERE %s = ?", parameter.getKey());
-        builder.appendParam(parameter.getKey(), parameter.getKeyValue());
+        if(!StringUtil.isNullOrEmpty(parameter.getSql())){
+            builder.append(parameter.getSql());
+        }
+        else if(!StringUtil.isNullOrEmpty(parameter.getTable())) {
+            builder.append("DELETE FROM %s", parameter.getTable());
+            builder.append(" WHERE %s = ?", parameter.getKey());
+            builder.appendParam(parameter.getKey(), parameter.getKeyValue());
+        }else{
+            logger.error("sql and edit table empty error");
+        }
         return builder.build();
     }
 }

@@ -35,12 +35,17 @@ public class SQLContext {
     public Map<String, Object> executeGeneratedKey(PreparedSQLCommand command) {
         command.debug(logger);
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        int rows = template.update(con -> {
-            PreparedStatement ps = con.prepareStatement(command.getCommandText(), Statement.RETURN_GENERATED_KEYS);
-            newArgPreparedStatementSetter(command.getParams()).setValues(ps);
-            return ps;
-        }, keyHolder);
-        debugAffect(rows);
+        try {
+            int rows = template.update(con -> {
+                PreparedStatement ps = con.prepareStatement(command.getCommandText(), Statement.RETURN_GENERATED_KEYS);
+                newArgPreparedStatementSetter(command.getParams()).setValues(ps);
+                return ps;
+            }, keyHolder);
+            debugAffect(rows);
+        }catch (Exception ex){
+            logger.error("execute generatedKey error",ex);
+            throw ex;
+        }
         Map<String, Object> keys = null;
         try {
             keys = keyHolder.getKeys();

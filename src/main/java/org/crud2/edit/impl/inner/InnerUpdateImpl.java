@@ -4,6 +4,7 @@ import org.crud2.edit.impl.AbstractUpdateImpl;
 import org.crud2.jdbc.PreparedSQLCommand;
 import org.crud2.jdbc.PreparedSQLCommandBuilder;
 import org.crud2.jdbc.SQLContext;
+import org.crud2.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +27,20 @@ public class InnerUpdateImpl extends AbstractUpdateImpl {
 
     private PreparedSQLCommand buildUpdateCommand() {
         PreparedSQLCommandBuilder builder = PreparedSQLCommandBuilder.newInstance();
-        builder.append("UPDATE %s  SET ", parameter.getTable());
-        String[] keys = new String[parameter.getValues().size()];
-        parameter.getValues().keySet().toArray(keys);
-        builder.append(keys, k -> k + "=?");
-        builder.append(" WHERE %s = ?", parameter.getKey());
-        builder.appendParam(keys, parameter.getValues());
-        builder.appendParam(parameter.getKey(), parameter.getKeyValue());
+        if(!StringUtil.isNullOrEmpty(parameter.getSql())){
+            builder.append(parameter.getSql());
+        }
+        else if(!StringUtil.isNullOrEmpty(parameter.getTable())) {
+            builder.append("UPDATE %s  SET ", parameter.getTable());
+            String[] keys = new String[parameter.getValues().size()];
+            parameter.getValues().keySet().toArray(keys);
+            builder.append(keys, k -> k + "=?");
+            builder.append(" WHERE %s = ?", parameter.getKey());
+            builder.appendParam(keys, parameter.getValues());
+            builder.appendParam(parameter.getKey(), parameter.getKeyValue());
+        }else{
+            logger.error("sql and edit table empty error");
+        }
         return builder.build();
     }
 }

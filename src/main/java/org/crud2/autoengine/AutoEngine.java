@@ -84,7 +84,7 @@ public class AutoEngine {
         return queryPluginList(plugin, moduleId, params);
     }
 
-    public static  <T> List<T> queryPluginList(Plugin<T> plugIn, String moduleId, Map<String, Object> params) {
+    public static <T> List<T> queryPluginList(Plugin<T> plugIn, String moduleId, Map<String, Object> params) {
         Module module = getAndCheckModule(moduleId);
         return plugIn.query(module, params);
     }
@@ -218,6 +218,11 @@ public class AutoEngine {
                 });
             });
         });
+    }
+
+    public static Map<String, Object> getMap(String moduleId, Map<String, Object> params) {
+        Query query = query(moduleId, params);
+        return query.getMap();
     }
 
     public static String[] getModuleQueryParameterNames(String moduleId) {

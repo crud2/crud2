@@ -31,6 +31,7 @@ public class InnerQueryImpl extends AbstractQueryImpl {
 
     private PreparedSQLCommand countCommand;
     private PreparedSQLCommand dataCommand;
+
     @Override
     public List queryList() {
         return null;
@@ -55,7 +56,8 @@ public class InnerQueryImpl extends AbstractQueryImpl {
 
     @Override
     public Map<String, Object> getMap() {
-        return null;
+        buildQueryCommand();
+        return sqlContext.queryForMap(dataCommand);
     }
 
     @Override
@@ -99,8 +101,7 @@ public class InnerQueryImpl extends AbstractQueryImpl {
         if (isUseSqlQuery()) {
             dataQueryBuilder.append(parameter.getSql());
             if (pager) countQueryBuilder.append("SELECT COUNT(1) FROM ( %s", parameter.getSql());
-            buildConditionCommand(dataQueryBuilder, countQueryBuilder, pager);
-            if (pager) countQueryBuilder.append(") _p");
+            //buildConditionCommand(dataQueryBuilder, countQueryBuilder, pager);
         } else {
             dataQueryBuilder.append("SELECT ");
             if (pager) countQueryBuilder.append("SELECT COUNT(1) FROM %s ", parameter.getQueryTable());
@@ -110,9 +111,10 @@ public class InnerQueryImpl extends AbstractQueryImpl {
                 dataQueryBuilder.append("*");
             }
             dataQueryBuilder.append(" FROM %s ", parameter.getQueryTable());
-            buildConditionCommand(dataQueryBuilder, countQueryBuilder, pager);
+            //buildConditionCommand(dataQueryBuilder, countQueryBuilder, pager);
         }
         buildConditionCommand(dataQueryBuilder, countQueryBuilder, pager);
+        if (isUseSqlQuery() && pager) countQueryBuilder.append(") _t");
         buildPagerCommand(dataQueryBuilder);
         dataCommand = dataQueryBuilder.build();
         if (pager) countCommand = countQueryBuilder.build();
@@ -121,7 +123,7 @@ public class InnerQueryImpl extends AbstractQueryImpl {
     private void buildConditionCommand(PreparedSQLCommandBuilder dataQueryBuilder, PreparedSQLCommandBuilder countQueryBuilder, boolean pager) {
         if (parameter.getConditions() != null && parameter.getConditions().size() > 0) {
             List<Condition> conditions = parameter.getConditions();
-            if (!(isUseSqlQuery() && parameter.getSql().toUpperCase().contains(" WHERE "))) {
+            if (!(isUseSqlQuery() && parameter.getSql().toUpperCase().contains("WHERE"))) {
                 dataQueryBuilder.append(" WHERE ");
                 if (pager) countQueryBuilder.append(" WHERE ");
             }
@@ -147,8 +149,8 @@ public class InnerQueryImpl extends AbstractQueryImpl {
                     default:
                         dataQueryBuilder.appendPlaceholder();
                         if (pager) countQueryBuilder.appendPlaceholder();
-                        dataQueryBuilder.appendParam(t.getOper(), t.getValue());
-                        if (pager) countQueryBuilder.appendParam(t.getOper(), t.getValue());
+                        dataQueryBuilder.appendParam(t.getField(), t.getValue());
+                        if (pager) countQueryBuilder.appendParam(t.getField(), t.getValue());
                         break;
                 }
             });

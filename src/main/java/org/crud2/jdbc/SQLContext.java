@@ -42,8 +42,8 @@ public class SQLContext {
                 return ps;
             }, keyHolder);
             debugAffect(rows);
-        }catch (Exception ex){
-            logger.error("execute generatedKey error",ex);
+        } catch (Exception ex) {
+            logger.error("execute generatedKey error", ex);
             throw ex;
         }
         Map<String, Object> keys = null;
@@ -72,7 +72,7 @@ public class SQLContext {
     }
 
     /***
-     * execute query and return a map result
+     * execute query and return a list map result
      * by default,use ColumnKeyNameResolver from resolver factory
      * @param command
      * @return LinkedHashMap result
@@ -113,6 +113,19 @@ public class SQLContext {
             logger.error("query for long result maybe null", ex);
             throw ex;
         }
+    }
+
+    /***
+     * execute query and return a map (single row result)
+     * by default,use ColumnKeyNameResolver from resolver factory
+     * @param command
+     * @return LinkedHashMap result
+     */
+    public Map<String, Object> queryForMap(PreparedSQLCommand command) {
+        command.debug(logger);
+        Map<String, Object> result = template.queryForObject(command.getCommandText(), command.getParams(), getColumnRowMapper());
+        debugTotal(result == null ? 0 : 1);
+        return result;
     }
 
     private void query(PreparedSQLCommand command, RowCallbackHandler rowCallbackHandler) {

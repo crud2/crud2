@@ -122,10 +122,14 @@ public class SQLContext {
      * @return LinkedHashMap result
      */
     public Map<String, Object> queryForMap(PreparedSQLCommand command) {
-        command.debug(logger);
+        List<Map<String, Object>> resultList = queryForMapList(command);
+        if (resultList.size() == 0) return null;
+        return resultList.get(0);
+        /*
         Map<String, Object> result = template.queryForObject(command.getCommandText(), command.getParams(), getColumnRowMapper());
         debugTotal(result == null ? 0 : 1);
         return result;
+        */
     }
 
     private void query(PreparedSQLCommand command, RowCallbackHandler rowCallbackHandler) {

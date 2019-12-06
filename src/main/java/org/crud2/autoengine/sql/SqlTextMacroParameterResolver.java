@@ -10,6 +10,7 @@ public class SqlTextMacroParameterResolver implements SqlTextParameterResolver {
 
     @Override
     public String resolve(String sql, Map<String, Object> params) {
+        if(params==null)return sql;
         for (String s : params.keySet()) {
             sql = sql.replaceAll(macroStr + s + macroStr, params.get(s) == null ? "" : params.get(s).toString());
         }

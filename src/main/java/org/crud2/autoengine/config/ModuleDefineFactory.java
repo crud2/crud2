@@ -54,6 +54,24 @@ public class ModuleDefineFactory {
         return sqlParameterNames.getOrDefault(moduleId, null);
     }
 
+    public String[] getModuleSqlParameterNames(String moduleId, String columnName) {
+        String mapkey = moduleId + "_" + columnName;
+        if (!sqlParameterNames.containsKey(mapkey)) {
+            Module module = get(moduleId);
+            if (module == null) sqlParameterNames.put(mapkey, null);
+            else {
+                Column column = module.getColumn(columnName);
+                if (column == null) sqlParameterNames.put(mapkey, null);
+                else {
+                    String sql = module.getSql();
+                    String[] names = sqlTextParameterResolver.getNames(sql);
+                    sqlParameterNames.put(mapkey, names);
+                }
+            }
+        }
+        return sqlParameterNames.getOrDefault(mapkey, null);
+    }
+
     public void regModule(Module module) {
         if (moduleMap.containsKey(module.getId())) moduleMap.remove(module.getId());
         moduleMap.put(module.getId(), module);

@@ -126,7 +126,7 @@ public class AutoEngine {
             Map<String, RepeatableLinkedMap<String, Object>> listSources = new HashMap<>();
             for (Column column : module.getColumns()) {
                 if (column.getListReplace() == 1) {
-                    listSources.put(column.getName(), getSourceList(column));
+                    listSources.put(column.getName(), getSourceList(column,params));
                 }
             }
             result.forEach(d -> {
@@ -207,7 +207,7 @@ public class AutoEngine {
             Map<String, RepeatableLinkedMap<String, Object>> listSources = new HashMap<>();
             for (Column column : module.getColumns()) {
                 if (column.getListReplace() == 1) {
-                    listSources.put(column.getName(), getSourceList(column));
+                    listSources.put(column.getName(), getSourceList(column,params));
                 }
             }
             List<Map<String, Object>> data = result.getData();
@@ -227,6 +227,10 @@ public class AutoEngine {
 
     public static String[] getModuleQueryParameterNames(String moduleId) {
         return moduleDefineFactory.getModuleSqlParameterNames(moduleId);
+    }
+
+    public static String[] getModuleColumnListSourceParameterNames(String moduleId, String column) {
+        return moduleDefineFactory.getModuleSqlParameterNames(moduleId, column);
     }
 
     public static Object insert(String moduleId, Map<String, Object> values) {
@@ -326,20 +330,32 @@ public class AutoEngine {
      * @return
      */
     public static RepeatableLinkedMap<String, Object> getSourceList(String moduleId, String columnName) {
+        return getSourceList(moduleId, columnName, null);
+    }
+
+    /**
+     * get module column list source
+     *
+     * @param moduleId
+     * @param columnName defined column name
+     * @param parameters sql parameters
+     * @return
+     */
+    public static RepeatableLinkedMap<String, Object> getSourceList(String moduleId, String columnName, Map<String, Object> parameters) {
         Module module = getAndCheckModule(moduleId);
         if (module == null) return null;
         Column column = module.getColumn(columnName);
         if (column == null) return null;
-        return getSourceList(column);
+        return getSourceList(column, parameters);
     }
 
-    public static RepeatableLinkedMap<String, Object> getSourceList(Column column) {
+    public static RepeatableLinkedMap<String, Object> getSourceList(Column column, Map<String, Object> parameters) {
         if (!StringUtil.isNullOrEmpty(column.getValue())) {
             ListSourceParse listSourceParse = crud2BeanFactory.getBean(KeyValueListSourceParse.class);
-            return listSourceParse.parse(column.getValue(), column.getSortType());
+            return listSourceParse.parse(column.getValue(), column.getSortType(), parameters);
         } else if (!StringUtil.isNullOrEmpty(column.getEditSql())) {
             ListSourceParse listSourceParse = crud2BeanFactory.getBean(SqlListSourceParse.class);
-            return listSourceParse.parse(column.getEditSql(), column.getSortType());
+            return listSourceParse.parse(column.getEditSql(), column.getSortType(), parameters);
         } else {
             logger.debug(String.format("column %s's list source didn't defined", column.getName()));
             return null;

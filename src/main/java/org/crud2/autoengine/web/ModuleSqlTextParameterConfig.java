@@ -29,4 +29,14 @@ public class ModuleSqlTextParameterConfig {
         }
         return moduleSqlParameterMap.get(moduleId);
     }
+
+    public String[] get(String moduleId,String column){
+        String mapKey = moduleId+"_"+column;
+        if (!moduleSqlParameterMap.containsKey(mapKey)) {
+            String[] names = moduleSqlTextParameterGetter.get(moduleId,column);
+            logger.debug(String.format("init module %s sql parameter names %s", moduleId, names == null ? "null" : Arrays.toString(names)));
+            moduleSqlParameterMap.put(moduleId, names);
+        }
+        return moduleSqlParameterMap.get(mapKey);
+    }
 }

@@ -15,12 +15,25 @@ import java.util.Map;
 public class DefaultRequestSqlParameterGetter implements RequestSqlParameterGetter {
     private static Logger logger = LoggerFactory.getLogger(DefaultRequestSqlParameterGetter.class);
 
+    /**
+     * this config must implement by web client
+     */
     @Autowired
     private ModuleSqlTextParameterConfig moduleSqlTextParameterConfig;
 
     @Override
     public Map<String, Object> get(String moduleId, HttpServletRequest request) {
         String[] names = moduleSqlTextParameterConfig.get(moduleId);
+        return get(names,request);
+    }
+
+    @Override
+    public Map<String, Object> get(String moduleId, String column, HttpServletRequest request) {
+        String[] names = moduleSqlTextParameterConfig.get(moduleId,column);
+        return get(names,request);
+    }
+
+    private Map<String,Object> get(String[] names,HttpServletRequest request){
         if (names == null) return null;
         Map<String, Object> parameters = new HashMap<>();
         Object value;

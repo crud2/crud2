@@ -44,7 +44,8 @@ public class DataTableRowMapper implements RowMapper<DataRow> {
         }
         DataRow row = new DataRow(columnCount);
         for (int i = 0; i < columnCount; i++) {
-            row.set(i, rs.getObject(i));
+            //fix: rs index start with 1
+            row.set(i, rs.getObject(i + 1));
         }
         return row;
     }

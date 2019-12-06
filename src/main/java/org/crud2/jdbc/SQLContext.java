@@ -55,6 +55,7 @@ public class SQLContext {
     }
 
     public DataTable queryDataTable(PreparedSQLCommand command) {
+        command.debug(logger);
         DataTableRowMapper rowMapper = new DataTableRowMapper();
         List<DataRow> rowList = template.query(command.getCommandText(), command.getParams(), rowMapper);
         debugTotal(rowList.size());
@@ -67,6 +68,7 @@ public class SQLContext {
         table.setColumns(columns);
         table.setColumnTypes(rowMapper.getColumnTypes());
         DataRow[] rows = new DataRow[rowList.size()];
+        rowList.toArray(rows);
         table.setRows(rows);
         return table;
     }

@@ -13,4 +13,9 @@ public class DefaultModuleSqlTextParameterGetter implements ModuleSqlTextParamet
     public String[] get(String moduleId) {
         return AutoEngine.getModuleQueryParameterNames(moduleId);
     }
+
+    @Override
+    public String[] get(String moduleId, String column) {
+        return AutoEngine.getModuleColumnListSourceParameterNames(moduleId, column);
+    }
 }

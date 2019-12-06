@@ -1,5 +1,6 @@
 package org.crud2.util;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,12 +10,16 @@ import java.util.List;
  * @param <TKey>
  * @param <TValue>
  */
-public class RepeatableLinkedMap<TKey, TValue> {
+public class RepeatableLinkedMap<TKey, TValue> implements Serializable {
 
     ArrayList<KeyValuePair<TKey, TValue>> data;
 
     public RepeatableLinkedMap() {
         data = new ArrayList<>();
+    }
+
+    public ArrayList<KeyValuePair<TKey, TValue>> getData() {
+        return data;
     }
 
     public void put(TKey key, TValue value) {
@@ -78,4 +83,7 @@ public class RepeatableLinkedMap<TKey, TValue> {
         return list;
     }
 
+    public int size() {
+        return data.size();
+    }
 }

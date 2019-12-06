@@ -6,6 +6,8 @@ import org.crud2.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 /***
  * key-value like list source parse
  * eg source: 1:one;2:two;
@@ -14,7 +16,7 @@ public class KeyValueListSourceParse implements ListSourceParse {
     private Logger logger = LoggerFactory.getLogger(KeyValueListSourceParse.class);
 
     @Override
-    public RepeatableLinkedMap<String, Object> parse(String source, String valueType) {
+    public RepeatableLinkedMap<String, Object> parse(String source, String valueType, Map<String,Object> parameters) {
         String[] tempPairs = source.split(";");
         RepeatableLinkedMap<String, Object> result = new RepeatableLinkedMap<>();
         for (String tempPairStr : tempPairs) {

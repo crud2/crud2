@@ -1,6 +1,7 @@
 package org.crud2.autoengine.listsource;
 
 import org.crud2.CRUD2BeanFactory;
+import org.crud2.autoengine.sql.SqlTextParameterResolver;
 import org.crud2.jdbc.DataRow;
 import org.crud2.jdbc.DataTable;
 import org.crud2.query.Query;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /***
  * sql list source,use first two field to map
@@ -22,8 +24,9 @@ public class SqlListSourceParse implements ListSourceParse {
     private CRUD2BeanFactory beanFactory;
 
     @Override
-    public RepeatableLinkedMap<String, Object> parse(String source, String valueType) {
-        DataTable dataTable = beanFactory.getQuery().sql(source).queryDataTable();
+    public RepeatableLinkedMap<String, Object> parse(String source, String valueType, Map<String, Object> parameters) {
+        SqlTextParameterResolver parameterResolver = beanFactory.getBean(SqlTextParameterResolver.class);
+        DataTable dataTable = beanFactory.getQuery().sql(parameterResolver.resolve(source, parameters)).queryDataTable();
         RepeatableLinkedMap<String, Object> result = new RepeatableLinkedMap<>();
         for (int i = 0; i < dataTable.getRows().length; i++) {
             DataRow row = dataTable.getRow(i);

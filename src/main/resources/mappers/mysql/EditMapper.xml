@@ -24,16 +24,16 @@
         </foreach>
         )
     </sql>
-    <select id="insertIdentity" resultType="long" parameterType="org.crud2.edit.EditParameter">
+    <select id="insertIdentity" resultType="long" parameterType="org.crud2.core.edit.EditParameter">
         <include refid="innerInsert"/>;
         SELECT LAST_INSERT_ID();
     </select>
 
-    <insert id="insert" parameterType="org.crud2.edit.EditParameter">
+    <insert id="insert" parameterType="org.crud2.core.edit.EditParameter">
         <include refid="innerInsert"/>;
     </insert>
 
-    <update id="update" parameterType="org.crud2.edit.EditParameter">
+    <update id="update" parameterType="org.crud2.core.edit.EditParameter">
         UPDATE ${table}
         SET
         <foreach item="value" index="key" collection="values" open=""

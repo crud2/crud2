@@ -12,7 +12,7 @@ import java.util.Date;
 public class Convert {
     public static Logger logger = LoggerFactory.getLogger(Convert.class);
 
-    public static Object toObject(Object value,String type){
+    public static Object toObject(Object value, String type) {
         switch (type) {
             case "float":
                 return Convert.toDecimal(value);
@@ -56,7 +56,9 @@ public class Convert {
 
     public static Date toDate(String s) {
         if (s == null || s.length() == 0) return null;
-        else if (s.length() <= 10)
+        else if (s.length() == 16) {
+            return toDate(s, "yyyy-MM-dd HH:mm");
+        } else if (s.length() <= 10)
             return toDate(s, "yyyy-MM-dd");
         else return toDateTime(s);
     }

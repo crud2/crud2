@@ -2,41 +2,43 @@ package org.crud2.jdbc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Component
 public class SQLContext {
     private static final Logger logger = LoggerFactory.getLogger(SQLContext.class);
 
-    @Autowired
-    JdbcTemplate template;
-    @Autowired
+    public SQLContext(JdbcTemplate jdbcTemplate, ColumnKeyNameResolver columnKeyNameResolver) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.columnKeyNameResolver = columnKeyNameResolver;
+    }
+
+    JdbcTemplate jdbcTemplate;
     ColumnKeyNameResolver columnKeyNameResolver;
 
     public void execute(PreparedSQLCommand command) {
         command.debug(logger);
-        int rows = template.update(command.getCommandText(), command.getParams());
-        debugAffect(rows);
+        try {
+            int rows = jdbcTemplate.update(command.getCommandText(), command.getParams());
+            debugAffect(rows);
+        } catch (Exception ex) {
+            logger.error("execute error", ex);
+            throw ex;
+        }
     }
 
     public Map<String, Object> executeGeneratedKey(PreparedSQLCommand command) {
         command.debug(logger);
         KeyHolder keyHolder = new GeneratedKeyHolder();
         try {
-            int rows = template.update(con -> {
+            int rows = jdbcTemplate.update(con -> {
                 PreparedStatement ps = con.prepareStatement(command.getCommandText(), Statement.RETURN_GENERATED_KEYS);
                 newArgPreparedStatementSetter(command.getParams()).setValues(ps);
                 return ps;
@@ -57,7 +59,7 @@ public class SQLContext {
     public DataTable queryDataTable(PreparedSQLCommand command) {
         command.debug(logger);
         DataTableRowMapper rowMapper = new DataTableRowMapper();
-        List<DataRow> rowList = template.query(command.getCommandText(), command.getParams(), rowMapper);
+        List<DataRow> rowList = jdbcTemplate.query(command.getCommandText(), command.getParams(), rowMapper);
         debugTotal(rowList.size());
         DataTable table = new DataTable();
         String[] columns = new String[rowMapper.getColumnCount()];
@@ -81,7 +83,7 @@ public class SQLContext {
      */
     public List<Map<String, Object>> queryForMapList(PreparedSQLCommand command) {
         command.debug(logger);
-        List<Map<String, Object>> result = template.query(command.getCommandText(), command.getParams(), getColumnRowMapper());
+        List<Map<String, Object>> result = jdbcTemplate.query(command.getCommandText(), command.getParams(), getColumnRowMapper());
         debugTotal(result.size());
         return result;
     }
@@ -94,7 +96,7 @@ public class SQLContext {
      */
     public List<Map<String, Object>> queryForMapList(PreparedSQLCommand command, ColumnKeyNameResolver columnKeyNameResolver) {
         command.debug(logger);
-        List<Map<String, Object>> result = template.query(command.getCommandText(), command.getParams(), getColumnRowMapper(columnKeyNameResolver));
+        List<Map<String, Object>> result = jdbcTemplate.query(command.getCommandText(), command.getParams(), getColumnRowMapper(columnKeyNameResolver));
         debugTotal(result.size());
         return result;
     }
@@ -108,7 +110,7 @@ public class SQLContext {
     public long queryForLong(PreparedSQLCommand command) {
         command.debug(logger);
         try {
-            Long result = template.queryForObject(command.getCommandText(), command.getParams(), Long.class);
+            Long result = jdbcTemplate.queryForObject(command.getCommandText(), command.getParams(), Long.class);
             debugTotal(1);
             return result;
         } catch (NullPointerException ex) {
@@ -136,7 +138,7 @@ public class SQLContext {
 
     private void query(PreparedSQLCommand command, RowCallbackHandler rowCallbackHandler) {
         command.debug(logger);
-        template.query(command.getCommandText(), command.getParams(), rowCallbackHandler);
+        jdbcTemplate.query(command.getCommandText(), command.getParams(), rowCallbackHandler);
     }
 
     private PreparedStatementSetter newArgPreparedStatementSetter(Object[] args) {

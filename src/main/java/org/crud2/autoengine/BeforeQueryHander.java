@@ -1,6 +1,6 @@
 package org.crud2.autoengine;
 
-import org.crud2.query.Query;
+import org.crud2.core.query.Query;
 
 @FunctionalInterface
 public interface BeforeQueryHander {

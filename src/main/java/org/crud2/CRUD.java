@@ -1,9 +1,9 @@
 package org.crud2;
 
-import org.crud2.edit.Delete;
-import org.crud2.edit.Insert;
-import org.crud2.edit.Update;
-import org.crud2.query.Query;
+import org.crud2.core.edit.Delete;
+import org.crud2.core.edit.Insert;
+import org.crud2.core.edit.Update;
+import org.crud2.core.query.Query;
 import org.springframework.stereotype.Component;
 
 @Component

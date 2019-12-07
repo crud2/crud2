@@ -25,16 +25,16 @@
         )
     </sql>
     <!--TODO:set key-column by config-->
-    <insert id="insertIdentity" parameterType="org.crud2.edit.EditParameter" useGeneratedKeys="true" keyColumn="id"
+    <insert id="insertIdentity" parameterType="org.crud2.core.edit.EditParameter" useGeneratedKeys="true" keyColumn="id"
             keyProperty="keyValue">
         <include refid="innerInsert"></include>
     </insert>
 
-    <insert id="insert" parameterType="org.crud2.edit.EditParameter">
+    <insert id="insert" parameterType="org.crud2.core.edit.EditParameter">
         <include refid="innerInsert"/>;
     </insert>
 
-    <update id="update" parameterType="org.crud2.edit.EditParameter">
+    <update id="update" parameterType="org.crud2.core.edit.EditParameter">
         UPDATE ${table}
         SET
         <foreach item="value" index="key" collection="values" open=""

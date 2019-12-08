@@ -37,6 +37,7 @@ public class Convert {
 
     public static Integer toInt(Object o) {
         if (o instanceof Integer) return (Integer) o;
+        if (o instanceof Long) return ((Long)o).intValue();
         else if (o instanceof String) {
             return toInt((String) o);
         }

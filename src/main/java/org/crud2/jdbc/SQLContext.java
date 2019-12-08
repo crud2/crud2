@@ -6,8 +6,11 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import sun.awt.IconInfo;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +25,54 @@ public class SQLContext {
 
     JdbcTemplate jdbcTemplate;
     ColumnKeyNameResolver columnKeyNameResolver;
+
+    public void beginTransaction(){
+        Connection connection =null;
+        try {
+            connection = jdbcTemplate.getDataSource().getConnection();
+        } catch (SQLException ignored) {
+            return;
+        }
+        if(connection!=null) {
+            try {
+                connection.setAutoCommit(false);
+            } catch (SQLException ex) {
+                logger.error("begin transaction fail",ex);
+            }
+        }
+    }
+
+    public void commit(){
+        Connection connection =null;
+        try {
+            connection = jdbcTemplate.getDataSource().getConnection();
+        } catch (SQLException ignored) {
+            return;
+        }
+        if(connection!=null) {
+            try {
+                connection.commit();
+            } catch (SQLException ex) {
+                logger.error("commit transaction fail",ex);
+            }
+        }
+    }
+
+    public void rollback(){
+        Connection connection =null;
+        try {
+            connection = jdbcTemplate.getDataSource().getConnection();
+        } catch (SQLException ignored) {
+            return;
+        }
+        if(connection!=null) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                logger.error("rollback transaction fail",ex);
+            }
+        }
+    }
 
     public void execute(PreparedSQLCommand command) {
         command.debug(logger);

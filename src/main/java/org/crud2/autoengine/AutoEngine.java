@@ -53,6 +53,7 @@ public class AutoEngine {
         Module module = getAndCheckModule(moduleId);
         if (module == null) return null;
         Query query = crud2BeanFactory.getQuery();
+        query.setDataSource(crud2BeanFactory.getBean(AutoEngineSessionBean.class).getDataSource(moduleId));
         if (!StringUtil.isNullOrEmpty(module.getSql())) {
             String sql = module.getSql();
             if (params != null) sql = sqlTextParameterResolver.resolve(sql, params);
@@ -86,6 +87,7 @@ public class AutoEngine {
 
     public static <T> List<T> queryPluginList(Plugin<T> plugIn, String moduleId, Map<String, Object> params) {
         Module module = getAndCheckModule(moduleId);
+        //TODO:muti datasource
         return plugIn.query(module, params);
     }
 
@@ -104,6 +106,7 @@ public class AutoEngine {
             String moduleId, Map<String, Object> params,
             BeforeQueryHander beforeQueryHandler, AfterQueryHandler<List<Map<String, Object>>> afterQueryHandler) {
         Query query = query(moduleId, params);
+        query.setDataSource(crud2BeanFactory.getBean(AutoEngineSessionBean.class).getDataSource(moduleId));
         if (beforeQueryHandler != null) beforeQueryHandler.handle(query);
         List<Map<String, Object>> result = query.queryListMap();
         if (afterQueryHandler != null) afterQueryHandler.handle(result);
@@ -126,7 +129,7 @@ public class AutoEngine {
             Map<String, RepeatableLinkedMap<String, Object>> listSources = new HashMap<>();
             for (Column column : module.getColumns()) {
                 if (column.getListReplace() == 1) {
-                    listSources.put(column.getName(), getSourceList(column,params));
+                    listSources.put(column.getName(), getSourceList(column, params));
                 }
             }
             result.forEach(d -> {
@@ -162,7 +165,7 @@ public class AutoEngine {
         Module module = getAndCheckModule(moduleId);
         if (module == null) return;
         String sql = crud2BeanFactory.getBean(SqlTextParameterResolver.class).resolve(module.getSql(), params);
-        crud2BeanFactory.getUpdate().sql(sql).flush();
+        crud2BeanFactory.getUpdate().setDataSource(crud2BeanFactory.getBean(AutoEngineSessionBean.class).getDataSource(moduleId)).sql(sql).flush();
     }
 
     /**
@@ -181,6 +184,7 @@ public class AutoEngine {
             int pageSize, int pageIndex,
             BeforeQueryHander beforeQueryHandler, AfterQueryHandler<PagerResult<List<Map<String, Object>>>> afterQueryHandler) {
         Query query = query(moduleId, params);
+        query.setDataSource(crud2BeanFactory.getBean(AutoEngineSessionBean.class).getDataSource(moduleId));
         query.pageSizeIndex(pageSize, pageIndex);
         beforeQueryHandler.handle(query);
         PagerResult<List<Map<String, Object>>> result = query.queryListMapPager();
@@ -207,7 +211,7 @@ public class AutoEngine {
             Map<String, RepeatableLinkedMap<String, Object>> listSources = new HashMap<>();
             for (Column column : module.getColumns()) {
                 if (column.getListReplace() == 1) {
-                    listSources.put(column.getName(), getSourceList(column,params));
+                    listSources.put(column.getName(), getSourceList(column, params));
                 }
             }
             List<Map<String, Object>> data = result.getData();
@@ -222,6 +226,7 @@ public class AutoEngine {
 
     public static Map<String, Object> getMap(String moduleId, Map<String, Object> params) {
         Query query = query(moduleId, params);
+        query.setDataSource(crud2BeanFactory.getBean(AutoEngineSessionBean.class).getDataSource(moduleId));
         return query.getMap();
     }
 
@@ -238,6 +243,7 @@ public class AutoEngine {
         if (module == null) return null;
         Insert insert = crud2BeanFactory.getInsert()
                 .into(module.getEditTable());
+        insert.setDataSource(crud2BeanFactory.getBean(AutoEngineSessionBean.class).getDataSource(moduleId));
         Column keyColumn = module.getKey();
         if (keyColumn == null) {
             logger.debug(String.format("module:%s has no primary key defined", moduleId));
@@ -262,6 +268,7 @@ public class AutoEngine {
         if (module == null) return;
         Update update = crud2BeanFactory.getUpdate()
                 .table(module.getEditTable());
+        update.setDataSource(crud2BeanFactory.getBean(AutoEngineSessionBean.class).getDataSource(moduleId));
         Column keyColumn = module.getKey();
         if (keyColumn == null) {
             logger.error(String.format("module:%s has no primary key defined", moduleId));
@@ -294,6 +301,7 @@ public class AutoEngine {
         if (module == null) return;
         Delete delete = crud2BeanFactory.getDelete()
                 .from(module.getEditTable());
+        delete.setDataSource(crud2BeanFactory.getBean(AutoEngineSessionBean.class).getDataSource(moduleId));
         Column keyColumn = module.getKey();
         if (keyColumn == null) {
             logger.error(String.format("module:%s has no primary key defined", moduleId));
@@ -308,6 +316,7 @@ public class AutoEngine {
         if (module == null) return;
         Delete delete = crud2BeanFactory.getDelete()
                 .from(module.getEditTable());
+        delete.setDataSource(crud2BeanFactory.getBean(AutoEngineSessionBean.class).getDataSource(moduleId));
         Column keyColumn = module.getKey();
         if (keyColumn == null) {
             logger.error(String.format("module:%s has no primary key defined", moduleId));

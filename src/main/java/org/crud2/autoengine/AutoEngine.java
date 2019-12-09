@@ -170,7 +170,7 @@ public class AutoEngine {
         Module module = getAndCheckModule(moduleId);
         if (module == null) return;
         String sql = crud2BeanFactory.getBean(SqlTextParameterResolver.class).resolve(module.getSql(), params);
-        crud2BeanFactory.getUpdate().setDataSource(crud2BeanFactory.getBean(AutoEngineSessionBean.class).getDataSource(moduleId)).sql(sql).flush();
+        crud2BeanFactory.getExecute().setDataSource(crud2BeanFactory.getBean(AutoEngineSessionBean.class).getDataSource(moduleId)).sql(sql).flush();
     }
 
     /**

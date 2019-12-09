@@ -1,9 +1,11 @@
 package org.crud2;
 
 import org.crud2.core.edit.Delete;
+import org.crud2.core.edit.Execute;
 import org.crud2.core.edit.Insert;
 import org.crud2.core.edit.Update;
 import org.crud2.core.edit.impl.inner.InnerDeleteImpl;
+import org.crud2.core.edit.impl.inner.InnerExecuteImpl;
 import org.crud2.core.edit.impl.inner.InnerInsertImpl;
 import org.crud2.core.edit.impl.inner.InnerUpdateImpl;
 import org.crud2.core.query.Query;
@@ -41,6 +43,10 @@ public class CRUD2BeanFactory {
 
     public Update getUpdate() {
         return context.getBean(InnerUpdateImpl.class);
+    }
+
+    public Execute getExecute(){
+        return context.getBean(InnerExecuteImpl.class);
     }
 
     public Delete getDelete() {

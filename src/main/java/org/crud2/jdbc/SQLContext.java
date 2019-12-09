@@ -84,6 +84,15 @@ public class SQLContext {
             throw ex;
         }
     }
+    public void execute(PreparedSQLCommand command) {
+        command.debug(logger);
+        try {
+            jdbcTemplate.execute(command.getCommandText());
+        } catch (Exception ex) {
+            logger.error("execute error", ex);
+            throw ex;
+        }
+    }
 
     public Map<String, Object> executeGeneratedKey(PreparedSQLCommand command) {
         command.debug(logger);

@@ -28,7 +28,7 @@ public class InnerInsertImpl extends AbstractInsertImpl {
             Map<String, Object> keys = sqlContextFactory.getSQLContext(dataSource).executeGeneratedKey(sqlCommand);
             return keys.get(parameter.getKey());
         } else {
-            sqlContextFactory.getSQLContext(dataSource).execute(sqlCommand);
+            sqlContextFactory.getSQLContext(dataSource).update(sqlCommand);
         }
         return null;
     }

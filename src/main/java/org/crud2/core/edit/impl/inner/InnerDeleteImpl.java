@@ -22,7 +22,7 @@ public class InnerDeleteImpl extends AbstractDeleteImpl {
     @Override
     public void flush() {
         PreparedSQLCommand command = buildDeleteCommand();
-        sqlContextFactory.getSQLContext(dataSource).execute(command);
+        sqlContextFactory.getSQLContext(dataSource).update(command);
     }
 
     private PreparedSQLCommand buildDeleteCommand() {

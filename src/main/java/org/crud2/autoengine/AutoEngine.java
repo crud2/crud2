@@ -1,5 +1,6 @@
 package org.crud2.autoengine;
 
+import org.crud2.CRUD;
 import org.crud2.CRUD2BeanFactory;
 import org.crud2.autoengine.config.Column;
 import org.crud2.autoengine.config.Module;
@@ -41,6 +42,10 @@ public class AutoEngine {
         AutoEngine.crud2BeanFactory = crud2BeanFactory;
         AutoEngine.moduleDefineFactory = moduleDefineFactory;
         AutoEngine.sqlTextParameterResolver = sqlTextParameterResolver;
+    }
+
+    public static Module getModule(String moduleId) {
+        return getAndCheckModule(moduleId);
     }
 
     // region query

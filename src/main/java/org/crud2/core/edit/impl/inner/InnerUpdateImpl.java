@@ -23,7 +23,7 @@ public class InnerUpdateImpl extends AbstractUpdateImpl {
     @Override
     public void flush() {
         PreparedSQLCommand sqlCommand = buildUpdateCommand();
-        sqlContextFactory.getSQLContext(dataSource).execute(sqlCommand);
+        sqlContextFactory.getSQLContext(dataSource).update(sqlCommand);
     }
 
     private PreparedSQLCommand buildUpdateCommand() {

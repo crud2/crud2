@@ -74,7 +74,7 @@ public class SQLContext {
         }
     }
 
-    public void execute(PreparedSQLCommand command) {
+    public void update(PreparedSQLCommand command) {
         command.debug(logger);
         try {
             int rows = jdbcTemplate.update(command.getCommandText(), command.getParams());

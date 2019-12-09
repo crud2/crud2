@@ -8,11 +8,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CRUD {
+
+
     private static CRUD2BeanFactory beanFactory;
 
     public void setBeanFactory(CRUD2BeanFactory beanFactory) {
         CRUD.beanFactory = beanFactory;
     }
+
 
     public static Query query() {
         return beanFactory.getQuery();

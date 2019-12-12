@@ -1,6 +1,7 @@
 package org.crud2.autoengine.config;
 
 import org.crud2.autoengine.sql.SqlTextParameterResolver;
+import org.crud2.util.ResourceUtil;
 import org.crud2.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,14 +89,13 @@ public class ModuleDefineFactory {
         }
 
         for (org.springframework.core.io.Resource resource : moduleConfigs) {
-            InputStream stream = null;
+            String configString;
             try {
-                stream = resource.getInputStream();
+                configString = ResourceUtil.readText(resource);
             } catch (IOException e) {
                 logger.error(String.format("read module config file: %s fail", resource.getFilename()), e);
                 continue;
             }
-            String configString = StringUtil.fromInputStream(stream);
             if (configString.length() == 0) {
                 logger.error(String.format("read module config file: %s fail,empty string", resource.getFilename()));
                 continue;

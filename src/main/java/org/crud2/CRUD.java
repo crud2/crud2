@@ -16,7 +16,6 @@ public class CRUD {
         CRUD.beanFactory = beanFactory;
     }
 
-
     public static Query query() {
         return beanFactory.getQuery();
     }

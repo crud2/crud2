@@ -7,6 +7,9 @@
     <groupId>org.crud2</groupId>
     <artifactId>crud2</artifactId>
     <version>0.1.0</version>
+    <name>crud2</name>
+    <url>https://github.com/crud2/crud2</url>
+    <description>a anti orm data access layer</description>
     <!--<version>0.1.0-SNAPHOST</version>-->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

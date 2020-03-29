@@ -263,7 +263,7 @@ public class AutoEngine {
             }
         }
         if (keyColumn != null && keyColumn.getDefaultValueType() == 2) {
-            insert.identity(keyColumn.getName());
+            insert.useGenerateKey(keyColumn.getName());
         }
         return insert.flush();
     }

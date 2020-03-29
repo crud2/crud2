@@ -23,8 +23,15 @@ public class InnerInsertImpl extends AbstractInsertImpl {
 
     @Override
     public Object flush() {
+        if (parameter.useSelectKey()) {
+            PreparedSQLCommand selectKeyCommand = buildSelectKeyCommand();
+            Object keyValue = sqlContextFactory.getSQLContext(dataSource).queryForObject(selectKeyCommand);
+            parameter.setKeyValue(keyValue);
+            parameter.getValues().remove(parameter.getKey());
+            parameter.getValues().put(parameter.getKey(),keyValue);
+        }
         PreparedSQLCommand sqlCommand = buildInsertCommand();
-        if (parameter.isIdentity()) {
+        if (parameter.useGenerateKey()) {
             Map<String, Object> keys = sqlContextFactory.getSQLContext(dataSource).executeGeneratedKey(sqlCommand);
             return keys.get(parameter.getKey());
         } else {
@@ -33,12 +40,17 @@ public class InnerInsertImpl extends AbstractInsertImpl {
         return null;
     }
 
+    private PreparedSQLCommand buildSelectKeyCommand() {
+        PreparedSQLCommandBuilder builder = PreparedSQLCommandBuilder.newInstance();
+        builder.append(parameter.getSelectKeySql());
+        return builder.build();
+    }
+
     private PreparedSQLCommand buildInsertCommand() {
         PreparedSQLCommandBuilder builder = PreparedSQLCommandBuilder.newInstance();
-        if(!StringUtil.isNullOrEmpty(parameter.getSql())){
+        if (!StringUtil.isNullOrEmpty(parameter.getSql())) {
             builder.append(parameter.getSql());
-        }
-        else if(!StringUtil.isNullOrEmpty(parameter.getTable())) {
+        } else if (!StringUtil.isNullOrEmpty(parameter.getTable())) {
             builder.append("INSERT INTO %s (", parameter.getTable());
             String[] keys = new String[parameter.getValues().size()];
             parameter.getValues().keySet().toArray(keys);
@@ -47,7 +59,7 @@ public class InnerInsertImpl extends AbstractInsertImpl {
             builder.appendPlaceolder(keys.length);
             builder.appendParam(keys, parameter.getValues());
             builder.append(")");
-        }else{
+        } else {
             logger.error("sql and edit table empty error");
         }
         return builder.build();

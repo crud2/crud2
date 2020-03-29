@@ -179,6 +179,18 @@ public class SQLContext {
         }
     }
 
+    public Object queryForObject(PreparedSQLCommand command){
+        command.debug(logger);
+        try {
+            Object result = jdbcTemplate.queryForObject(command.getCommandText(), command.getParams(), Object.class);
+            debugTotal(1);
+            return result;
+        } catch (NullPointerException ex) {
+            logger.error("query for object result maybe null", ex);
+            throw ex;
+        }
+    }
+
     /***
      * execute query and return a map (single row result)
      * by default,use ColumnKeyNameResolver from resolver factory

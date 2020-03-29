@@ -12,7 +12,9 @@ public interface Insert {
 
     Insert value(String field, Object value);
 
-    Insert identity(String key);
+    Insert useGenerateKey(String key);
+
+    Insert useSelectKey(String key,String selectKeySql);
 
     Object flush();
 }

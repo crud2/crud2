@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class CRUD {
 
-
     private static CRUD2BeanFactory beanFactory;
 
     public void setBeanFactory(CRUD2BeanFactory beanFactory) {
